@@ -1,0 +1,25 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+
+# 前端源码统一用 tab 缩进（与现有代码和 Biome 配置一致）
+[*.{astro,js,ts,mjs,cjs,json,jsonc}]
+indent_style = tab
+
+# Java 使用 4 空格
+[*.java]
+indent_style = space
+indent_size = 4
+
+# Markdown 不做尾随空格裁剪（两个空格是换行语法）
+[*.md]
+trim_trailing_whitespace = false

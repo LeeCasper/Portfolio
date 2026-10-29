@@ -1,0 +1,66 @@
+[
+	{
+		"id": 1,
+		"name": "Github",
+		"username": "1lck",
+		"image": "/assets/social/social-github.jpg",
+		"url": "https://github.com/1lck"
+	},
+
+	{
+		"id": 2,
+		"name": "微信",
+		"username": "A0517lck",
+		"image": "/assets/social/social-xiaohongshu.jpg",
+		"url": "#"
+	},
+
+	{
+		"id": 3,
+		"name": "电话",
+		"username": "15779197185",
+		"image": "/assets/social/social-twitter.jpg",
+		"url": "tel:15779197185"
+	},
+
+	{
+		"id": 4,
+		"name": "博客",
+		"username": "整理中",
+		"image": "/assets/social/social-gumroad.jpg",
+		"url": "#"
+	},
+
+	{
+		"id": 5,
+		"name": "设计灵感",
+		"username": "准备上线",
+		"image": "/assets/social/social-behance.jpg",
+		"url": "#"
+	},
+
+	{
+		"id": 6,
+		"name": "Figma 文件",
+		"username": "制作中",
+		"image": "/assets/social/social-figma.jpg",
+		"url": "#",
+		"isShow": false
+	},
+
+	{
+		"id": 7,
+		"name": "界面草稿",
+		"username": "筹备中",
+		"image": "/assets/social/social-dribbble.jpg",
+		"url": "#"
+	},
+
+	{
+		"id": 8,
+		"name": "邮箱",
+		"username": "2188718831@qq.com",
+		"image": "/assets/social/social-email.jpg",
+		"url": "mailto:2188718831@qq.com"
+	}
+]

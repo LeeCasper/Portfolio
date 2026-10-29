@@ -1,0 +1,40 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import "../styles/admin.css";
+
+interface Props {
+  title: string;
+  heading: string;
+  description?: string;
+}
+
+const { title, heading, description } = Astro.props;
+---
+
+<Layout title={title}>
+  <section class="admin-shell">
+    <div class="admin-container">
+      <header class="admin-page-header">
+        <a href="/admin" class="admin-back">← 返回后台首页</a>
+        <h1>{heading}</h1>
+        {description ? <p>{description}</p> : null}
+      </header>
+
+      <div class="admin-card admin-token-card">
+        <label>
+          <span>管理员 Token</span>
+          <input
+            id="admin-token"
+            type="password"
+            placeholder="请输入 CONTENT_ADMIN_TOKEN 的值"
+            autocomplete="off"
+          />
+        </label>
+        <!-- admin-dashboard.ts 通过 #admin-status 输出成功/失败提示，所有后台页共用这一个节点 -->
+        <div id="admin-status" class="admin-status" data-status="info" role="status" aria-live="polite"></div>
+      </div>
+
+      <slot />
+    </div>
+  </section>
+</Layout>

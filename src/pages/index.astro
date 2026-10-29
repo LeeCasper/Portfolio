@@ -1,0 +1,167 @@
+---
+import Button from "../components/ui/Button.astro";
+import { siteConfig } from "@/config/site";
+import HeroCard from "@/components/home/HeroCard.astro";
+import Layout from "@/layouts/Layout.astro";
+import FeaturedWork from "../components/sections/FeaturedWork.astro";
+import BlogSection from "@/components/sections/BlogSection.astro";
+import SocialCard from "@/components/cards/SocialCard.astro";
+import AnimatedText from "@/components/ui/AnimatedText.astro";
+import Explore from "@/components/sections/Explore.astro";
+import { apiClient, type Profile } from "@/lib/apiClient";
+
+const pageTitle = "李陈康 · Java后端开发工程师";
+const pageDescription = "热爱挑战、追求卓越的Java后端工程师，专注于构建高性能、高可用的分布式系统。2026届本科生，具备丰富的实习和项目经验。";
+
+let profile: Profile | null = null;
+let profileError: string | null = null;
+
+try {
+  profile = await apiClient.fetchProfile();
+} catch (error) {
+  profileError = error instanceof Error ? error.message : "无法加载个人信息";
+}
+
+const heroHeading = profile?.fullName ? `Hello，我是 ${profile.fullName}` : "Hello，我是李陈康";
+const heroSubtitle =
+  profile?.headline ?? "Java后端开发工程师 · 2026届应届生";
+const heroDescription =
+  profile?.bio ?? "专注于构建高性能、高可用的分布式系统。我的技术栈以 Java 和 Spring Boot 为核心，深入实践 Spring Cloud 微服务、MySQL 优化、Redis 缓存与 RabbitMQ 消息队列。在武汉赢派实习期间，独立负责旅游系统核心架构，交付60+个API，系统稳定性超过99.9%。";
+
+const contactParts = [
+  profile?.wechat ? `VX：${profile.wechat}` : null,
+  profile?.phone ? `电话：${profile.phone}` : null,
+  profile?.email ? `邮箱：${profile.email}` : null
+].filter(Boolean);
+
+const contactLine =
+  contactParts.length > 0 ? contactParts.join(" · ") : "电话：15779197185 · 邮箱：2188718831@qq.com";
+
+const heroButtonLabel = profile?.primaryCtaLabel ?? "联系我";
+const heroButtonLink = profile?.primaryCtaLink ?? "mailto:2188718831@qq.com";
+
+const heroImage = profile?.heroImageUrl ?? "/assets/home/gradientshub.jpg";
+const heroCardTitle = profile?.jobTitle ?? "Java后端开发工程师";
+const heroCardLink = profile?.secondaryCtaLink ?? "#";
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  keywords="李陈康, Java后端, Spring Boot, 微服务, 分布式系统, 求职, 2026届"
+>
+  <div class="relative site-container z-20 w-full mx-auto mt-16 px-4 md:mt-18 lg:mt-20 xl:px-0">
+    <div class="relative w-full px-4 flex flex-col items-center justify-between md:flex-row mb-16">
+      <div class="relative w-full md:max-w-[420px] md:w-1/2 text-center sm:text-left sm:-mt-8">
+        {profileError && (
+          <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/20">
+            {profileError}
+          </div>
+        )}
+
+        <h1 class="mb-4">
+          <AnimatedText
+            content={heroHeading}
+            delay={0.1}
+            duration={0.5}
+            stagger={0.08}
+            class="text-5xl text-pri leading-tight md:text-4xl lg:text-6xl font-brand"
+          />
+        </h1>
+
+        <div class="mb-2">
+          <AnimatedText
+            content={heroSubtitle}
+            delay={0.3}
+            duration={0.5}
+            stagger={0.015}
+            class="text-base text-neutral-700 dark:text-neutral-300"
+          />
+        </div>
+
+        <div class="mb-4">
+          <AnimatedText
+            content={heroDescription}
+            delay={0.5}
+            duration={0.5}
+            stagger={0.015}
+            class="text-base text-neutral-700 dark:text-neutral-300"
+          />
+        </div>
+
+        <div class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed mb-4">
+          {contactLine}
+        </div>
+
+        <div
+          data-aos="fade-up-sm"
+          data-aos-delay="900"
+          data-aos-duration="500"
+          data-aos-once="true"
+        >
+          <Button url={heroButtonLink} type="fill" className="m-auto mt-4 text-center sm:text-left sm:m-0 sm:mt-6 max-w-[200px]">
+            {heroButtonLabel}
+          </Button>
+        </div>
+
+        <div
+          class="social mt-8 mb-8"
+          data-aos="fade-up-sm"
+          data-aos-delay="1000"
+          data-aos-duration="600"
+          data-aos-once="true"
+        >
+          <SocialCard displaySocialIds={[1, 2, 3, 4]} />
+        </div>
+      </div>
+
+      <div
+        class="relative justify-end w-full mt-16 md:flex md:pl-10 md:w-1/2 md:mt-0 md:translate-y-4 xl:translate-y-0"
+        data-aos="fade-left-sm"
+        data-aos-delay="300"
+        data-aos-duration="800"
+        data-aos-once="true"
+      >
+        <HeroCard
+          imageUrl={heroImage}
+          title={heroCardTitle}
+          link={heroCardLink}
+        />
+      </div>
+    </div>
+  </div>
+
+  <section
+    class="mt-26 mb-12"
+    data-aos="fade-up-sm"
+    data-aos-delay="100"
+    data-aos-duration="600"
+    data-aos-once="true"
+  >
+    <Explore title="探索我的技术" description="后端架构、性能优化、项目实战经验，持续分享。" />
+  </section>
+
+  <section
+    class="mt-26 mb-12"
+    data-aos="fade-up-sm"
+    data-aos-delay="100"
+    data-aos-duration="600"
+    data-aos-once="true"
+  >
+    <FeaturedWork title="精选项目" description="涵盖分布式系统、高并发优化、微服务架构等实战项目。每个项目都体现了对技术的深入理解和实践能力。" limit={5} />
+  </section>
+
+  <section
+    class="mt-26 mb-12"
+    data-aos="fade-up-sm"
+    data-aos-delay="100"
+    data-aos-duration="600"
+    data-aos-once="true"
+  >
+    <BlogSection
+      title="技术博客"
+      description="分享Java后端开发、架构设计、性能优化的实战经验与技术心得。"
+      showViewAllButton={true}
+    />
+  </section>
+</Layout>

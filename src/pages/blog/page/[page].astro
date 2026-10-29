@@ -1,0 +1,32 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PageHeader from "@/components/elements/PageHeader.astro";
+import BlogSection from "@/components/sections/BlogSection.astro";
+
+export const prerender = false;
+
+const POSTS_PER_PAGE = 6;
+const currentPage = Number(Astro.params.page ?? "1");
+---
+
+<Layout title={`Blog - 第 ${currentPage} 页`}>
+  <section class="relative z-20 container mx-auto my-12 px-7 lg:px-0">
+    <PageHeader
+      title="博客"
+      description="按分页查看全部文章，包含项目拆解、调研心得、课堂笔记以及实验室故事。"
+    />
+  </section>
+  <section class="relative z-20 mx-auto my-12 px-7 lg:px-0">
+    <div class="mt-12">
+      <BlogSection
+        title="全部文章"
+        listPage={true}
+        pagination={{
+          enable: true,
+          currentPage
+        }}
+        postsPerPage={POSTS_PER_PAGE}
+      />
+    </div>
+  </section>
+</Layout>

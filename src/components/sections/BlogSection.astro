@@ -1,0 +1,144 @@
+---
+import Pagination from "@/components/widgets/Pagination.astro";
+import BlogCard from "@/components/cards/BlogCard.astro";
+import SectionHeader from "@/components/elements/SectionHeader.astro";
+import Button from "@/components/ui/Button.astro";
+import AnimatedText from "@/components/ui/AnimatedText.astro";
+import { apiClient, type BlogPost } from "@/lib/apiClient";
+
+interface Props {
+  title?: string;
+  description?: string;
+  limit?: number;
+  listPage?: boolean;
+  showViewAllButton?: boolean;
+  pagination?: {
+    enable: boolean;
+    currentPage: number;
+  };
+  postsPerPage?: number;
+}
+
+const {
+  title = "最新文章",
+  description = "",
+  limit = 3,
+  listPage = false,
+  showViewAllButton = true,
+  pagination = {
+    enable: false,
+    currentPage: 1
+  },
+  postsPerPage = 3
+} = Astro.props as Props;
+
+let allPosts: BlogPost[] = [];
+let blogLoadError: string | null = null;
+
+try {
+  allPosts = await apiClient.fetchBlogPosts();
+} catch (error) {
+  blogLoadError = error instanceof Error ? error.message : "无法获取文章数据";
+}
+
+const sortByPublishDate = (post: BlogPost) => new Date(post.publishDate).getTime();
+allPosts = allPosts.sort((a, b) => sortByPublishDate(b) - sortByPublishDate(a));
+
+const featuredPost = allPosts.find((post) => post.featured);
+
+let workingPosts = allPosts;
+if (featuredPost && listPage) {
+  workingPosts = workingPosts.filter((post) => post.slug !== featuredPost.slug);
+}
+
+const totalPages = Math.max(1, Math.ceil(workingPosts.length / postsPerPage));
+
+let paginatedPosts = workingPosts;
+if (pagination.enable) {
+  const indexOfLastPost = pagination.currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  paginatedPosts = workingPosts.slice(indexOfFirstPost, indexOfLastPost);
+} else if (!listPage) {
+  paginatedPosts = workingPosts.slice(0, limit);
+}
+
+const toCardContent = (post: BlogPost) => ({
+  title: post.title,
+  description: post.summary,
+  publishDate: post.publishDate,
+  tags: post.tags || [],
+  img: post.coverImageUrl,
+  slug: post.slug,
+  link: `/blog/${post.slug}`
+});
+---
+
+{listPage && featuredPost && pagination.currentPage === 1 && (
+  <section class="mb-16">
+    <div class="site-container">
+      <h2 class="text-3xl font-brand mb-6 text-neutral-800 dark:text-white">
+        <AnimatedText delay={0.75} stagger={0.08} content="精选推荐" />
+      </h2>
+      <div class="dark:from-neutral-900 dark:to-neutral-800 p-1 rounded-2xl">
+        <BlogCard
+          layout="horizontal"
+          content={toCardContent(featuredPost)}
+          data-aos="fade-up-sm"
+          data-aos-delay="1000"
+        />
+      </div>
+    </div>
+  </section>
+)}
+
+<section>
+  <div class="site-container space-y-10 md:space-y-16">
+    {!listPage && title && (
+      <SectionHeader title={title} description={description} />
+    )}
+
+    {listPage && title && (
+      <div class="mx-auto">
+        <h2 class="text-3xl font-brand text-neutral-800 dark:text-white">{title}</h2>
+      </div>
+    )}
+
+    {blogLoadError && (
+      <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/20">
+        {blogLoadError}
+      </div>
+    )}
+
+    {!blogLoadError && paginatedPosts.length === 0 && (
+      <div class="rounded-xl border border-dashed border-neutral-200 px-4 py-6 text-center text-sm text-neutral-500 dark:border-neutral-700 dark:text-neutral-300">
+        暂无文章，快去后台写第一篇博客吧。
+      </div>
+    )}
+
+    {!blogLoadError && paginatedPosts.length > 0 && (
+      <div class="grid gap-x-6 gap-y-10 md:grid-cols-2 xl:grid-cols-3">
+        {paginatedPosts.map((post, index) => (
+          <BlogCard
+            content={toCardContent(post)}
+            data-aos={!pagination.enable && (Math.floor(index / 3) % 2 === 0 ? "fade-right-sm" : "fade-left-sm")}
+            data-aos-delay={!pagination.enable && ((index % 3) + 1) * 200}
+          />
+        ))}
+      </div>
+    )}
+
+    {listPage && totalPages > 1 && (
+      <Pagination
+        collection="blog"
+        currentPage={pagination.currentPage || 1}
+        totalPages={totalPages}
+      />
+    )}
+  </div>
+
+  {!listPage && showViewAllButton && (
+    <div class="flex justify-center mt-12 mb-12">
+      <Button url="/blog" className="w-full max-w-60">查看全部文章</Button>
+    </div>
+  )}
+</section>

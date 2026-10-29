@@ -1,0 +1,141 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { runtimeConfig } from "@/lib/runtime-config";
+
+export const prerender = false;
+---
+
+<AdminLayout
+  title="后台管理"
+  heading="后台管理面板"
+  description={`接口基地址：${runtimeConfig.apiBaseUrl}`}
+>
+  <div class="admin-nav-grid">
+    <a href="/admin/projects" class="admin-nav-card">
+      <h3>项目管理</h3>
+      <p>管理首页项目展示</p>
+    </a>
+    <a href="/admin/posts" class="admin-nav-card">
+      <h3>文章管理</h3>
+      <p>管理博客文章内容</p>
+    </a>
+    <a href="/admin/works" class="admin-nav-card">
+      <h3>作品管理</h3>
+      <p>管理作品集展示</p>
+    </a>
+  </div>
+
+  <article class="admin-card">
+    <header>
+      <h2>个人信息</h2>
+      <p>更新首页展示的姓名、简介、联系信息以及按钮文案。</p>
+    </header>
+    <form id="profile-form" class="admin-form">
+      <div class="form-grid">
+        <label>
+          姓名
+          <input name="fullName" type="text" required />
+        </label>
+        <label>
+          标题
+          <input name="headline" type="text" />
+        </label>
+        <label class="col-span-2">
+          个人简介
+          <textarea name="bio" rows="3"></textarea>
+        </label>
+        <label>
+          邮箱
+          <input name="email" type="email" />
+        </label>
+        <label>
+          电话
+          <input name="phone" type="text" />
+        </label>
+        <label>
+          微信
+          <input name="wechat" type="text" />
+        </label>
+        <label>
+          所在地
+          <input name="location" type="text" />
+        </label>
+        <label>
+          职责 / 身份
+          <input name="jobTitle" type="text" />
+        </label>
+        <label class="col-span-2">
+          Hero 图
+          <input type="hidden" name="heroImagePath" />
+          <input
+            type="file"
+            accept="image/*"
+            data-upload-target="heroImagePath"
+            data-upload-category="profile-hero"
+            data-upload-status="#profile-hero-status"
+          />
+          <p id="profile-hero-status" class="upload-status">尚未上传</p>
+        </label>
+        <label class="col-span-2">
+          简历文件
+          <input type="hidden" name="resumePath" />
+          <input
+            type="file"
+            accept=".pdf,.md,.txt"
+            data-upload-target="resumePath"
+            data-upload-category="profile-resume"
+            data-upload-status="#profile-resume-status"
+          />
+          <p id="profile-resume-status" class="upload-status">尚未上传</p>
+        </label>
+        <label>
+          主按钮文案
+          <input name="primaryCtaLabel" type="text" />
+        </label>
+        <label>
+          主按钮链接
+          <input name="primaryCtaLink" type="text" />
+        </label>
+        <label>
+          次按钮文案
+          <input name="secondaryCtaLabel" type="text" />
+        </label>
+        <label>
+          次按钮链接
+          <input name="secondaryCtaLink" type="text" />
+        </label>
+      </div>
+      <div class="admin-actions">
+        <button type="submit" class="admin-button">保存个人信息</button>
+      </div>
+    </form>
+  </article>
+
+  <article class="admin-card">
+    <header>
+      <h2>文件上传</h2>
+      <p>文件写入服务器磁盘 storage 目录，返回可供项目或文章引用的路径。</p>
+    </header>
+    <form id="upload-form" class="admin-form" enctype="multipart/form-data">
+      <div class="form-grid">
+        <label>
+          分类（可选）
+          <input name="category" type="text" placeholder="projects / posts / profile / works" />
+        </label>
+        <label class="col-span-2">
+          选择文件
+          <input name="file" type="file" required />
+        </label>
+      </div>
+      <div class="admin-actions">
+        <button type="submit" class="admin-button">上传文件</button>
+      </div>
+    </form>
+    <div id="upload-result" class="upload-status"></div>
+  </article>
+</AdminLayout>
+
+<script>
+  import initAdminDashboard from "@/scripts/admin-dashboard";
+  initAdminDashboard();
+</script>

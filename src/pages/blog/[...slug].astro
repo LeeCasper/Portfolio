@@ -1,0 +1,103 @@
+---
+import PostLayout from "@/layouts/PostLayout.astro";
+import Toc from "@/components/widgets/Toc.astro";
+import { apiClient, type BlogPost } from "@/lib/apiClient";
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const slugString = Array.isArray(slug) ? slug.join("/") : slug ?? "";
+
+let post: BlogPost | null = null;
+let loadError: string | null = null;
+
+if (!slugString) {
+  loadError = "未提供文章地址";
+} else {
+  try {
+    post = await apiClient.fetchBlogPost(slugString);
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "文章获取失败";
+  }
+}
+
+if (!post || loadError) {
+  return Astro.redirect("/404", 404);
+}
+
+const publishDate = new Date(post.publishDate);
+const headings = (post.headings || []).filter((heading) => heading.depth <= 2);
+---
+
+<PostLayout title={post.title} description={post.summary}>
+  <div id="reading-progress" class="reading-progress" style="transform: scaleX(0);"></div>
+
+  <div class="post article">
+    <main class="relative site-container mx-auto my-8 md:my-12">
+      <header class="article-header">
+        <div class="article-tags">
+          {post.tags && post.tags.length > 0 ? (
+            post.tags.map(tag => (
+              <span class="article-tag letter-spacing-wide text-xs">{tag}</span>
+            ))
+          ) : (
+            <span class="article-tag text-xs">Article</span>
+          )}
+        </div>
+
+        <h1 class="article-title font-brand">
+          {post.title}
+        </h1>
+
+        <div class="article-meta text-sm text-neutral-500 dark:text-neutral-400">
+          <time datetime={publishDate.toISOString()}>
+            {publishDate.toLocaleDateString("zh-CN", {
+              year: "numeric",
+              month: "long",
+              day: "numeric"
+            })}
+          </time>
+        </div>
+      </header>
+
+      <div class="relative flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-16">
+        <aside class="relative hidden lg:block lg:w-40 xl:w-50 flex-shrink-0">
+          <div class="toc-sticky-wrapper">
+            <Toc headings={headings} />
+          </div>
+        </aside>
+
+        <div class="relative flex-1 min-w-0 w-full lg:max-w-none">
+          <article class="article-wrapper">
+            <div class="article-content" set:html={post.contentHtml}></div>
+          </article>
+        </div>
+      </div>
+    </main>
+  </div>
+</PostLayout>
+
+<style>
+.toc-sticky-wrapper {
+  position: sticky;
+  top: 8rem;
+}
+</style>
+
+<script>
+function updateReadingProgress() {
+  const progressBar = document.getElementById('reading-progress');
+  if (!progressBar) return;
+
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
+  const scrollTop = window.scrollY;
+  const scrollPercentage = (scrollTop / (documentHeight - windowHeight)) * 100;
+
+  progressBar.style.transform = `scaleX(${Math.min(scrollPercentage / 100, 1)})`;
+}
+
+window.addEventListener('scroll', updateReadingProgress, { passive: true });
+document.addEventListener('DOMContentLoaded', updateReadingProgress);
+updateReadingProgress();
+</script>
