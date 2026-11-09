@@ -139,28 +139,6 @@ html.dark h1,html.dark h2,html.dark h3{
   color:var(--color-text-primary-dark);
 }
 
-/* Custom CSS styles */
-#sun {
-  transform: rotate(0);
-}
-
-#moon {
-  transform: rotate(0);
-}
-
-#darkToggle:hover #sun {
-  transform: rotate(360deg);
-}
-
-#darkToggle:hover #moon {
-   transform: rotate(45deg);
-}
-
-
-html.dark #darkToggle:hover .horizon {
-  border-color: #718096 !important;
-}
-
 html{
   font-family: var(--font-sans);
   scroll-behavior: smooth;
@@ -169,43 +147,16 @@ html.dark {
   color-scheme: dark;
 }
 
-.horizon .setting {
-  animation: 1s ease 0s 1 setting;
-}
-
-.horizon .rising {
-  animation: 1s ease 0s 1 rising;
-}
-
-@keyframes setting {
-  0% {
-    transform: translate3d(0, 10px, 0);
-  }
-
-  40% {
-    transform: translate3d(0, -2px, 0);
-  }
-
-  to {
-    transform: translate3d(0, 30px, 0);
-  }
-}
-
-@keyframes rising {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 30px, 0);
-  }
-
-  40% {
-    opacity: 1;
-    transform: translate3d(0, -2px, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 10px, 0);
-  }
+/* 切换主题时给配色加过渡，避免整页瞬间跳变。
+   过渡只在切换后的 260ms 内生效（JS 负责加减 .theme-transition），不影响平时交互。 */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity, transform !important;
+  transition-duration: 260ms !important;
+  transition-timing-function: ease !important;
+  transition-delay: 0s !important;
 }
 
 

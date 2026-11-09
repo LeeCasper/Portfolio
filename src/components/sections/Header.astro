@@ -4,6 +4,12 @@ import menus from "@/collections/menu.json";
 import Button from "@/components/ui/Button.astro";
 import Logo from "@/components/ui/Logo.astro";
 import { siteConfig } from "@/config/site.js";
+import { apiClient } from "@/lib/apiClient";
+
+// 简历入口以后台「个人信息」里上传的文件为准，未上传时才回退到静态配置。
+const profile = await apiClient.fetchProfile();
+const resumeUrl = profile?.resumeUrl?.trim() || siteConfig.resume || "";
+const resumeLabel = resumeUrl ? "简历" : "简历（待更新）";
 ---
 
 <!-- This is an invisible div with relative position so that it takes up the height of the menu (because menu is absolute/fixed) -->
@@ -40,9 +46,9 @@ import { siteConfig } from "@/config/site.js";
             style="box-shadow: 0px 2px 3px 0 rgba(55,52,209,0.21);"
           >
             <SunMedium
-              class="absolute hidden text-white w-4 h-4 transition duration-200 transform ease mobile-sun" />
+              class="theme-icon theme-icon-sun absolute text-white w-4 h-4" />
             <Moon
-              class="absolute hidden text-white w-4 h-4 transition duration-200 transform ease mobile-moon" />
+              class="theme-icon theme-icon-moon absolute text-white w-4 h-4" />
           </div>
         </div>
 
@@ -112,8 +118,13 @@ import { siteConfig } from "@/config/site.js";
 
         <!-- Contact Button (Mobile) -->
         <div class="relative z-10 w-full px-5 mt-3 sm:hidden">
-          <Button url={siteConfig.resume || "#"} type="fill" className="m-auto w-full justify-center ">
-            简历（待更新） <Download size={16} />
+          <Button
+            url={resumeUrl || "#"}
+            type={resumeUrl ? "fill" : "disabled"}
+            target="_blank"
+            className="m-auto w-full justify-center "
+          >
+            {resumeLabel} <Download size={16} />
           </Button>
         </div>
       </div>
@@ -121,8 +132,13 @@ import { siteConfig } from "@/config/site.js";
       <!-- Desktop Actions -->
       <div class="relative hidden sm:flex items-center gap-2 ml-4 lg:ml-6">
         <!-- Contact Button (Desktop) -->
-        <Button url={siteConfig.resume || "#"} type="fill" className="md:flex mx-1">
-          简历（待更新） <Download size={16} />
+        <Button
+          url={resumeUrl || "#"}
+          type={resumeUrl ? "fill" : "disabled"}
+          target="_blank"
+          className="md:flex mx-1"
+        >
+          {resumeLabel} <Download size={16} />
         </Button>
 
         <span class="separator-line  hidden sm:inline-block bg-[rgba(183,202,255,0.5)] mt-[20px] -translate-y-1/2 w-px h-[20px]"></span>
@@ -136,14 +152,12 @@ import { siteConfig } from "@/config/site.js";
             class="flex justify-center items-center flex-shrink-0 w-6 h-6 relative overflow-hidden rounded-full bg-gradient-to-b from-[#85a6ff] to-[#2d6dc3] border-[0.5px] border-[#7fa1ff]"
             style="box-shadow: 0px 2px 3px 0 rgba(55,52,209,0.21);"
           >
-            <SunMedium id="sun"
-               class="absolute hidden text-white w-4 h-4 transition duration-200 transform ease" />
-            <Moon class="absolute hidden text-white w-4 h-4 transition duration-200 transform ease"
-              id="moon" />
+            <SunMedium class="theme-icon theme-icon-sun absolute text-white w-4 h-4" />
+            <Moon class="theme-icon theme-icon-moon absolute text-white w-4 h-4" />
           </div>
-          <span class="hidden sm:inline-block whitespace-nowrap">
-            <span id="dayText" class="flex-shrink-0 text-sm text-left text-[#6f6c8f] dark:text-neutral-400">亮色</span>
-            <span id="nightText" class="hidden flex-shrink-0 text-sm text-left text-[#6f6c8f] dark:text-neutral-400">暗色</span>
+          <span class="theme-label relative hidden sm:inline-block w-9 h-5 align-middle whitespace-nowrap">
+            <span class="theme-label-day absolute inset-0 flex items-center text-sm text-[#6f6c8f] dark:text-neutral-400">亮色</span>
+            <span class="theme-label-night absolute inset-0 flex items-center text-sm text-[#6f6c8f] dark:text-neutral-400">暗色</span>
           </span>
         </div>
       </div>
@@ -224,6 +238,62 @@ import { siteConfig } from "@/config/site.js";
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* 明暗图标常驻渲染，用透明度 + 旋转过渡切换，避免 display:none 造成的闪跳 */
+  .theme-icon {
+    transition:
+      opacity 180ms ease,
+      transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1);
+    will-change: opacity, transform;
+  }
+
+  .theme-icon-sun {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  .theme-icon-moon {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.55);
+  }
+
+  :global(.dark) .theme-icon-sun {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.55);
+  }
+
+  :global(.dark) .theme-icon-moon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  /* 亮色 / 暗色文字交叉淡入淡出 */
+  .theme-label-day,
+  .theme-label-night {
+    transition:
+      opacity 160ms ease,
+      transform 240ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  .theme-label-day {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .theme-label-night {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  :global(.dark) .theme-label-day {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  :global(.dark) .theme-label-night {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   /* Mobile menu background blur effect enhancement */
   @supports (backdrop-filter: blur(12px)) {
     #mobileMenuBackground {
@@ -299,37 +369,9 @@ import { siteConfig } from "@/config/site.js";
     }
   }
 
-  // Sync dark mode toggle between mobile and desktop
+  // 图标与文字状态完全由 <html class="dark"> 驱动（见上方 CSS），无需 JS 同步
   const darkToggle = document.getElementById('darkToggle');
   const darkToggleMobile = document.getElementById('darkToggleMobile');
-
-  function syncDarkModeIcons() {
-    const isDark = document.documentElement.classList.contains('dark');
-    const sunIcons = document.querySelectorAll('#sun, .mobile-sun');
-    const moonIcons = document.querySelectorAll('#moon, .mobile-moon');
-
-    if (isDark) {
-      moonIcons.forEach(icon => icon.classList.remove('hidden'));
-      sunIcons.forEach(icon => icon.classList.add('hidden'));
-      document.getElementById('dayText')?.classList.add('hidden');
-      document.getElementById('nightText')?.classList.remove('hidden');
-    } else {
-      sunIcons.forEach(icon => icon.classList.remove('hidden'));
-      moonIcons.forEach(icon => icon.classList.add('hidden'));
-      document.getElementById('dayText')?.classList.remove('hidden');
-      document.getElementById('nightText')?.classList.add('hidden');
-    }
-  }
-
-  // Sync on initialization
-  document.addEventListener('DOMContentLoaded', syncDarkModeIcons);
-
-  // Listen for dark mode changes
-  const observer = new MutationObserver(syncDarkModeIcons);
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['class']
-  });
 
   // Mobile dark mode toggle
   darkToggleMobile?.addEventListener('click', () => {

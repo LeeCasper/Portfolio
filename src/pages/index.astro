@@ -1,11 +1,11 @@
 ---
 import Button from "../components/ui/Button.astro";
-import { siteConfig } from "@/config/site";
 import HeroCard from "@/components/home/HeroCard.astro";
 import Layout from "@/layouts/Layout.astro";
 import FeaturedWork from "../components/sections/FeaturedWork.astro";
 import BlogSection from "@/components/sections/BlogSection.astro";
 import SocialCard from "@/components/cards/SocialCard.astro";
+import ContactCard from "@/components/cards/ContactCard.astro";
 import AnimatedText from "@/components/ui/AnimatedText.astro";
 import Explore from "@/components/sections/Explore.astro";
 import { apiClient, type Profile } from "@/lib/apiClient";
@@ -25,14 +25,6 @@ try {
 const heroHeading = profile?.fullName ? `Hello，我是 ${profile.fullName}` : "Hello，我是李聪";
 const heroSubtitle = profile?.headline ?? "软件测试工程师";
 const heroDescription = profile?.bio ?? "这里会展示我的项目、文章与经历。";
-
-const contactParts = [
-  profile?.wechat ? `VX：${profile.wechat}` : null,
-  profile?.phone ? `电话：${profile.phone}` : null,
-  profile?.email ? `邮箱：${profile.email}` : null
-].filter(Boolean);
-
-const contactLine = contactParts.length > 0 ? contactParts.join(" · ") : "";
 
 const heroButtonLabel = profile?.primaryCtaLabel ?? "了解更多";
 const heroButtonLink = profile?.primaryCtaLink ?? "/about";
@@ -86,8 +78,14 @@ const heroCardLink = profile?.secondaryCtaLink ?? "#";
           />
         </div>
 
-        <div class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed mb-4">
-          {contactLine}
+        <div
+          class="mb-4"
+          data-aos="fade-up-sm"
+          data-aos-delay="700"
+          data-aos-duration="500"
+          data-aos-once="true"
+        >
+          <ContactCard profile={profile} />
         </div>
 
         <div

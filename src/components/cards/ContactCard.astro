@@ -1,0 +1,99 @@
+---
+import { Mail, MapPin, MessageCircle, Phone } from "@lucide/astro";
+import type { Profile } from "@/lib/apiClient";
+
+interface Props {
+	profile?: Profile | null;
+	class?: string;
+}
+
+const { profile, class: className = "" } = Astro.props;
+
+type ContactItem = {
+	key: string;
+	label: string;
+	value: string;
+	href?: string;
+	icon: typeof Mail;
+	/** 图标底色，区分不同类型 */
+	tone: string;
+};
+
+const items = [
+	profile?.email
+		? {
+				key: "email",
+				label: "邮箱",
+				value: profile.email,
+				href: `mailto:${profile.email}`,
+				icon: Mail,
+				tone: "from-indigo-50 to-sky-50 text-indigo-500 dark:from-indigo-950/60 dark:to-sky-950/40 dark:text-indigo-300"
+			}
+		: null,
+	profile?.phone
+		? {
+				key: "phone",
+				label: "电话",
+				value: profile.phone,
+				href: `tel:${profile.phone}`,
+				icon: Phone,
+				tone: "from-emerald-50 to-teal-50 text-emerald-500 dark:from-emerald-950/60 dark:to-teal-950/40 dark:text-emerald-300"
+			}
+		: null,
+	profile?.wechat
+		? {
+				key: "wechat",
+				label: "微信",
+				value: profile.wechat,
+				icon: MessageCircle,
+				tone: "from-green-50 to-lime-50 text-green-500 dark:from-green-950/60 dark:to-lime-950/40 dark:text-green-300"
+			}
+		: null,
+	profile?.location
+		? {
+				key: "location",
+				label: "所在地",
+				value: profile.location,
+				icon: MapPin,
+				tone: "from-amber-50 to-orange-50 text-amber-500 dark:from-amber-950/60 dark:to-orange-950/40 dark:text-amber-300"
+			}
+		: null
+].filter(Boolean) as ContactItem[];
+
+const chipClass =
+	"group inline-flex items-center gap-2 rounded-xl border border-neutral-200/90 bg-white/70 px-2.5 py-[7px] text-sm text-neutral-700 shadow-[0_1px_2px_rgba(16,24,40,0.04)] backdrop-blur-sm transition-all duration-200 dark:border-neutral-700/70 dark:bg-neutral-900/50 dark:text-neutral-200";
+const interactiveClass = `${chipClass} hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_6px_16px_rgba(45,109,195,0.14)] dark:hover:border-primary/50 dark:hover:shadow-[0_6px_16px_rgba(0,0,0,0.35)]`;
+---
+
+{
+	items.length > 0 && (
+		<div class={`flex flex-wrap items-center justify-center gap-2 sm:justify-start ${className}`}>
+			{items.map((item) => {
+				const Icon = item.icon;
+				const inner = (
+					<>
+						<span
+							class={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${item.tone} transition-transform duration-200 group-hover:scale-105`}
+						>
+							<Icon size={15} />
+						</span>
+						<span class="flex min-w-0 flex-col text-left leading-tight">
+							<span class="text-[11px] text-neutral-400 dark:text-neutral-500">{item.label}</span>
+							<span class="truncate font-medium">{item.value}</span>
+						</span>
+					</>
+				);
+
+				return item.href ? (
+					<a href={item.href} class={interactiveClass} title={`${item.label}：${item.value}`}>
+						{inner}
+					</a>
+				) : (
+					<div class={chipClass} title={`${item.label}：${item.value}`}>
+						{inner}
+					</div>
+				);
+			})}
+		</div>
+	)
+}

@@ -21,12 +21,7 @@ let headerElement = null;
 document.addEventListener("DOMContentLoaded", () => {
 	headerElement = document.getElementById("header");
 
-	if (localStorage.getItem("dark_mode") && localStorage.getItem("dark_mode") === "true") {
-		window.darkMode = true;
-		showNight();
-	} else {
-		showDay();
-	}
+	window.darkMode = document.documentElement.classList.contains("dark");
 	stickyHeaderFuncionality();
 	applyMenuItemClasses();
 	evaluateHeaderPosition();
@@ -77,69 +72,34 @@ window.evaluateHeaderPosition = () => {
 	}
 };
 
-document.getElementById("darkToggle").addEventListener("click", () => {
-	document.documentElement.classList.add("duration-300");
+const themeRoot = document.documentElement;
+let themeTransitionTimer = 0;
 
-	if (document.documentElement.classList.contains("dark")) {
-		localStorage.removeItem("dark_mode");
-		showDay(true);
-	} else {
+/**
+ * 立即切换主题：先加 dark 类，再让配色做 260ms 过渡。
+ * 旧实现要把太阳/月亮动画跑完（500ms）才真正换色，观感上就是「点了没反应」。
+ */
+function applyTheme(isDark) {
+	themeRoot.classList.toggle("theme-transition", true);
+	themeRoot.classList.toggle("dark", isDark);
+
+	window.clearTimeout(themeTransitionTimer);
+	themeTransitionTimer = window.setTimeout(() => {
+		themeRoot.classList.remove("theme-transition");
+	}, 280);
+
+	if (isDark) {
 		localStorage.setItem("dark_mode", true);
-		showNight(true);
+	} else {
+		localStorage.removeItem("dark_mode");
 	}
+
+	window.darkMode = isDark;
+}
+
+document.getElementById("darkToggle").addEventListener("click", () => {
+	applyTheme(!themeRoot.classList.contains("dark"));
 });
-
-function showDay(animate) {
-	document.getElementById("sun").classList.remove("setting");
-	document.getElementById("moon").classList.remove("rising");
-
-	let timeout = 0;
-
-	if (animate) {
-		timeout = 500;
-
-		document.getElementById("moon").classList.add("setting");
-	}
-
-	setTimeout(() => {
-		document.getElementById("dayText").classList.remove("hidden");
-		document.getElementById("nightText").classList.add("hidden");
-
-		document.getElementById("moon").classList.add("hidden");
-		document.getElementById("sun").classList.remove("hidden");
-
-		if (animate) {
-			document.documentElement.classList.remove("dark");
-			document.getElementById("sun").classList.add("rising");
-		}
-	}, timeout);
-}
-
-function showNight(animate) {
-	document.getElementById("moon").classList.remove("setting");
-	document.getElementById("sun").classList.remove("rising");
-
-	let timeout = 0;
-
-	if (animate) {
-		timeout = 500;
-
-		document.getElementById("sun").classList.add("setting");
-	}
-
-	setTimeout(() => {
-		document.getElementById("nightText").classList.remove("hidden");
-		document.getElementById("dayText").classList.add("hidden");
-
-		document.getElementById("sun").classList.add("hidden");
-		document.getElementById("moon").classList.remove("hidden");
-
-		if (animate) {
-			document.documentElement.classList.add("dark");
-			document.getElementById("moon").classList.add("rising");
-		}
-	}, timeout);
-}
 
 window.applyMenuItemClasses = () => {
 	const menuItems = document.querySelectorAll("#menu a");
