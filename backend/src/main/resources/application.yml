@@ -23,6 +23,7 @@ content:
   admin-token: ${CONTENT_ADMIN_TOKEN:}
   allowed-origins:
     - ${PUBLIC_APP_ORIGIN:http://localhost:5200}
+    - ${PUBLIC_ADMIN_ORIGIN:http://localhost:9530}
 
 logging:
   level:

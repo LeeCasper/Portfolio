@@ -4,6 +4,5 @@ const mediaBase = (import.meta.env.PUBLIC_MEDIA_BASE_URL || `${apiBase}/api/file
 export const runtimeConfig = {
 	apiBaseUrl: apiBase,
 	publicApiBaseUrl: `${apiBase}/api/public`,
-	adminApiBaseUrl: `${apiBase}/api/admin`,
 	mediaBaseUrl: mediaBase,
 };

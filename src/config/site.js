@@ -1,10 +1,10 @@
-const SITE_URL = import.meta.env.PUBLIC_SITE_URL || "https://lichenkang.dev";
+const SITE_URL = import.meta.env.PUBLIC_SITE_URL || "https://artaides.com";
 
 export const siteConfig = {
-	title: "李陈康 · 个人网站",
-	author: "李陈康",
+	title: "李聪 · 个人作品集",
+	author: "李聪",
 	url: SITE_URL,
-	mail: "2188718831@qq.com",
+	mail: "",
 	resume: "",
 	utm: {
 		source: `${SITE_URL}`,
@@ -12,9 +12,9 @@ export const siteConfig = {
 		campaign: "navigation",
 	},
 	meta: {
-		title: "李陈康 · Java 开发者",
-		description: "我是李陈康，景德镇艺术职业大学计算机专业学生，主攻 Java 全栈开发，记录校园项目与学习笔记。",
-		keywords: "李陈康, Java 开发, 校园项目, 个人网站, 景德镇艺术职业大学",
+		title: "李聪 · 软件测试工程师",
+		description: "李聪的个人作品集与技术博客。",
+		keywords: "李聪, 软件测试工程师, 个人网站, 作品集, 技术博客",
 		image: `${SITE_URL}/og.jpg`,
 		twitterHandle: "",
 	},

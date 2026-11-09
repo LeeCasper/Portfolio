@@ -10,8 +10,8 @@ import AnimatedText from "@/components/ui/AnimatedText.astro";
 import Explore from "@/components/sections/Explore.astro";
 import { apiClient, type Profile } from "@/lib/apiClient";
 
-const pageTitle = "李陈康 · Java后端开发工程师";
-const pageDescription = "热爱挑战、追求卓越的Java后端工程师，专注于构建高性能、高可用的分布式系统。2026届本科生，具备丰富的实习和项目经验。";
+const pageTitle = "李聪 · 软件测试工程师";
+const pageDescription = "李聪的个人作品集与技术博客。";
 
 let profile: Profile | null = null;
 let profileError: string | null = null;
@@ -22,11 +22,9 @@ try {
   profileError = error instanceof Error ? error.message : "无法加载个人信息";
 }
 
-const heroHeading = profile?.fullName ? `Hello，我是 ${profile.fullName}` : "Hello，我是李陈康";
-const heroSubtitle =
-  profile?.headline ?? "Java后端开发工程师 · 2026届应届生";
-const heroDescription =
-  profile?.bio ?? "专注于构建高性能、高可用的分布式系统。我的技术栈以 Java 和 Spring Boot 为核心，深入实践 Spring Cloud 微服务、MySQL 优化、Redis 缓存与 RabbitMQ 消息队列。在武汉赢派实习期间，独立负责旅游系统核心架构，交付60+个API，系统稳定性超过99.9%。";
+const heroHeading = profile?.fullName ? `Hello，我是 ${profile.fullName}` : "Hello，我是李聪";
+const heroSubtitle = profile?.headline ?? "软件测试工程师";
+const heroDescription = profile?.bio ?? "这里会展示我的项目、文章与经历。";
 
 const contactParts = [
   profile?.wechat ? `VX：${profile.wechat}` : null,
@@ -34,21 +32,20 @@ const contactParts = [
   profile?.email ? `邮箱：${profile.email}` : null
 ].filter(Boolean);
 
-const contactLine =
-  contactParts.length > 0 ? contactParts.join(" · ") : "电话：15779197185 · 邮箱：2188718831@qq.com";
+const contactLine = contactParts.length > 0 ? contactParts.join(" · ") : "";
 
-const heroButtonLabel = profile?.primaryCtaLabel ?? "联系我";
-const heroButtonLink = profile?.primaryCtaLink ?? "mailto:2188718831@qq.com";
+const heroButtonLabel = profile?.primaryCtaLabel ?? "了解更多";
+const heroButtonLink = profile?.primaryCtaLink ?? "/about";
 
 const heroImage = profile?.heroImageUrl ?? "/assets/home/gradientshub.jpg";
-const heroCardTitle = profile?.jobTitle ?? "Java后端开发工程师";
+const heroCardTitle = profile?.jobTitle ?? "毕业生";
 const heroCardLink = profile?.secondaryCtaLink ?? "#";
 ---
 
 <Layout
   title={pageTitle}
   description={pageDescription}
-  keywords="李陈康, Java后端, Spring Boot, 微服务, 分布式系统, 求职, 2026届"
+  keywords="个人作品集, 技术博客, 项目展示"
 >
   <div class="relative site-container z-20 w-full mx-auto mt-16 px-4 md:mt-18 lg:mt-20 xl:px-0">
     <div class="relative w-full px-4 flex flex-col items-center justify-between md:flex-row mb-16">

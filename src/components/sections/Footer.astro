@@ -2,7 +2,10 @@
 import Logo from "@/components/ui/Logo.astro";
 import ToTop from "@/components/widgets/ToTop.astro";
 import { siteConfig } from "@/config/site.js";
-import socialItems from "@/collections/social.json";
+import socialJson from "@/collections/social.json";
+import type { SocialItem } from "@/types/collections";
+
+const socialItems = socialJson as SocialItem[];
 import {
   BookOpen,
   Figma,

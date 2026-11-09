@@ -10,8 +10,12 @@ import {
 	Zap,
 } from "@lucide/astro";
 import { siteConfig } from "@/config/site.js";
-import experiences from "@/collections/experiences.json";
-import social from "@/collections/social.json";
+import experiencesJson from "@/collections/experiences.json";
+import socialJson from "@/collections/social.json";
+import type { ExperienceItem, SocialItem } from "@/types/collections";
+
+const experiences = experiencesJson as ExperienceItem[];
+const social = socialJson as SocialItem[];
 import AboutExperience from "@/components/elements/AboutExperience.astro";
 import Button from "@/components/ui/Button.astro";
 import Matter from "@/components/ui/Matter.astro";
@@ -38,20 +42,15 @@ try {
   profileError = error instanceof Error ? error.message : "无法加载简介数据";
 }
 
-const displayName = profile?.fullName ?? "李陈康";
+const displayName = profile?.fullName ?? "李聪";
 const pageTitle = `关于${displayName}`;
 const avatarImage = profile?.heroImageUrl ?? "/assets/avatar.png";
-const headlineQuote = profile?.headline ?? "热爱挑战、追求卓越的Java后端工程师，专注于构建高性能、高可用的分布式系统。";
-const heroSubtitle = profile?.jobTitle ?? "Java后端开发工程师 · 2026届本科生";
+const headlineQuote = profile?.headline ?? "软件测试工程师";
+const heroSubtitle = profile?.jobTitle ?? "毕业生";
 const aboutParagraphs = profile?.bio
   ? profile.bio.split(/\r?\n+/).map((paragraph) => paragraph.trim()).filter(Boolean)
-  : [
-      "我是李陈康，一名将于2026年毕业的计算机科学与技术专业本科生。在校期间，我不仅以优异的成绩掌握了扎实的计算机理论基础，更通过多项实习和项目实践，将知识转化为解决复杂工程问题的能力。",
-      "我的技术栈以 Java 和 Spring Boot 为核心，并深入学习和应用了 Spring Cloud 微服务生态系统。在数据库方面，我熟练使用 MySQL 并进行SQL优化，同时擅长运用 Redis 作为缓存和分布式锁提升系统性能。我具备丰富的消息队列 RabbitMQ 应用经验，用于实现系统解耦和异步处理。",
-      "在武汉赢派有限公司实习期间，我独立负责了『趣游兔』旅游系统的核心架构设计与实现，成功交付了覆盖8大业务域的60+个API，系统稳定性超过99.9%。我通过多租户架构、VR全景优化、SSE流式推送等技术方案，显著提升了系统性能和用户体验。",
-      "我相信技术的价值在于解决实际问题。我不仅仅满足于实现功能，更致力于思考如何让系统更稳定、高效和易用。"
-    ];
-const emailAddress = profile?.email ?? "2188718831@qq.com";
+  : ["个人简介正在完善中，后续会补充更多内容。"];
+const emailAddress = profile?.email ?? "";
 const contactButtonUrl = profile?.primaryCtaLink ?? (emailAddress ? `mailto:${emailAddress}` : "#");
 const contactButtonLabel = profile?.primaryCtaLabel ?? "联系我";
 const resumeUrl = profile?.secondaryCtaLink ?? profile?.resumeUrl ?? (siteConfig.resume || "#");
@@ -65,8 +64,7 @@ const contactLineParts = [
   profile?.phone ? `电话：${profile.phone}` : null,
   emailAddress ? `邮箱：${emailAddress}` : null
 ].filter(Boolean) as string[];
-const contactLine =
-  contactLineParts.length > 0 ? contactLineParts.join(" · ") : "电话：15779197185 · 邮箱：2188718831@qq.com";
+const contactLine = contactLineParts.length > 0 ? contactLineParts.join(" · ") : "";
 ---
 
 <Layout title={pageTitle}>
@@ -321,23 +319,25 @@ const contactLine =
         <section id="lets-connect" class="space-y-6">
           <h2 class="text-3xl font-brand text-neutral-900 dark:text-white">保持联系</h2>
           <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            我目前正在寻找 Java 后端开发的实习或全职机会。如果您有合适的岗位，或希望交流技术、讨论项目合作，欢迎通过以下方式联系我。也可以在 <a href={githubLink} target="_blank" class="text-indigo-500 underline">GitHub</a> 上查看我的开源项目。我渴望加入技术驱动、富有挑战的团队，持续学习与成长。
+            如果你想交流技术或讨论合作，欢迎通过以下方式联系我。
           </p>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a 
-              href={`mailto:${emailAddress}`}
-              class="group flex items-center gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-lg transition-all duration-300"
-            >
-              <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 group-hover:scale-110 transition-transform">
-                <Mail size={24} class="text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <div class="flex-1">
-                <div class="text-sm font-semibold text-neutral-600 dark:text-neutral-400">邮箱</div>
-                <div class="text-neutral-900 dark:text-white">{emailAddress}</div>
-              </div>
-              <ArrowUpRight size={20} class="text-neutral-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
-            </a>
+            {emailAddress && (
+              <a
+                href={`mailto:${emailAddress}`}
+                class="group flex items-center gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-lg transition-all duration-300"
+              >
+                <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 group-hover:scale-110 transition-transform">
+                  <Mail size={24} class="text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-neutral-600 dark:text-neutral-400">邮箱</div>
+                  <div class="text-neutral-900 dark:text-white">{emailAddress}</div>
+                </div>
+                <ArrowUpRight size={20} class="text-neutral-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+              </a>
+            )}
 
             {profile?.phone && (
               <div class="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50">
@@ -351,35 +351,25 @@ const contactLine =
               </div>
             )}
 
-            {!profile?.phone && (
-              <div class="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50">
-                <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50">
-                  <Smartphone size={24} class="text-green-600 dark:text-green-400" />
+            {githubLink !== "#" && (
+              <a
+                href={githubLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all duration-300"
+              >
+                <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/50 dark:to-gray-950/50 group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-slate-700 dark:text-slate-300">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                  </svg>
                 </div>
                 <div class="flex-1">
-                  <div class="text-sm font-semibold text-neutral-600 dark:text-neutral-400">电话</div>
-                  <div class="text-neutral-900 dark:text-white">15779197185</div>
+                  <div class="text-sm font-semibold text-neutral-600 dark:text-neutral-400">GitHub</div>
+                  <div class="text-neutral-900 dark:text-white">{githubHandle}</div>
                 </div>
-              </div>
+                <ArrowUpRight size={20} class="text-neutral-400 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors" />
+              </a>
             )}
-
-            <a 
-              href={githubLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group flex items-center gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all duration-300"
-            >
-              <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/50 dark:to-gray-950/50 group-hover:scale-110 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-slate-700 dark:text-slate-300">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm font-semibold text-neutral-600 dark:text-neutral-400">GitHub</div>
-                <div class="text-neutral-900 dark:text-white">{githubHandle}</div>
-              </div>
-              <ArrowUpRight size={20} class="text-neutral-400 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors" />
-            </a>
 
             {profile?.wechat && (
               <div class="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50">

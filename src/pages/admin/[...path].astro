@@ -1,0 +1,13 @@
+---
+export const prerender = false;
+
+/**
+ * 管理后台已迁移为独立的 SoybeanAdmin 应用（见 admin/ 目录）。
+ * 这里只负责把旧的 /admin 与 /admin/* 地址 302 到新管理端，保留子路径与查询参数。
+ */
+const adminBase = (import.meta.env.PUBLIC_ADMIN_URL || "http://localhost:9530").replace(/\/$/, "");
+const rest = Astro.params.path ?? "";
+const suffix = rest ? `/${rest}` : "";
+
+return Astro.redirect(`${adminBase}${suffix}${Astro.url.search}`, 302);
+---

@@ -1,5 +1,8 @@
 ---
-import social from "@/collections/social.json";
+import socialJson from "@/collections/social.json";
+import type { SocialItem } from "@/types/collections";
+
+const social = socialJson as SocialItem[];
 const { displaySocialIds } = Astro.props;
 // 配置要显示的社交媒体 ID（留空则显示所有）
 //const displaySocialIds: number[] = [1, 2, 3]; // 只显示 ID 为 1, 2, 3 的社交媒体

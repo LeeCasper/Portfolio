@@ -2,9 +2,11 @@
 
 ## 总体思路
 
-- 前端 Astro 站点作为「展示层 + 轻量管理端」，可变内容通过 REST API 与 Spring Boot 后端通信。
-- Spring Boot 负责**文本信息落库**与**媒体文件磁盘存储**，不依赖任何云 OSS。
-- 通过 `.env`（前端）与 `application.yml`（后端）暴露可配置项，避免硬编码。
+- 系统由三部分组成：**Astro 公开站点**（展示层）、**SoybeanAdmin 管理端**（独立 Vue3 SPA）、
+  **Spring Boot 内容后端**（REST API）。
+- 可变内容通过 REST API 与 Spring Boot 通信；后端负责**文本信息落库**与**媒体文件磁盘存储**，
+  不依赖任何云 OSS。
+- 通过 `.env`（公开站点）、`admin/.env.*`（管理端）与 `application.yml`（后端）暴露配置。
 
 ## 后端（Spring Boot 3）
 
@@ -41,14 +43,25 @@
   `src/lib/apiClient.ts` 封装公开接口的 `fetch`、错误处理与空响应体处理。
 - 页面在 Astro 服务端（frontmatter）中调用 `apiClient` 获取数据，渲染时无需客户端再请求；
   后端不可用或内容为空时页面会回退到本地占位文案。
-- `/admin` 页面集合：
-  - `src/layouts/AdminLayout.astro` 统一提供 Token 输入框（`#admin-token`）、
-    状态提示区（`#admin-status`）与页面框架；
-  - `src/styles/admin.css` 集中所有后台样式；
-  - 三个子页（projects/posts/works）各自只加载本实体的数据，
-    `src/scripts/admin-dashboard.ts` 通过容器是否存在决定请求哪些接口。
+- 旧的 `/admin` 与 `/admin/*` 只保留一个 SSR 跳转页（`src/pages/admin/[...path].astro`），
+  读取 `PUBLIC_ADMIN_URL` 后 302 到管理端，并保留子路径与查询参数。
 - 社交链接、导航、经历等低频变更数据放在 `src/collections/`；
   文章正文与项目/作品由后端管理。RSS 与 `/blog` 使用同一个后端数据源。
+
+## 管理端（SoybeanAdmin）
+
+- 位于 `admin/`，是独立的 pnpm workspace（Vue 3 + Vite Plus + Naive UI），开发端口 9530。
+- 路由：`VITE_AUTH_ROUTE_MODE=static`，菜单由 `src/views/**/index.vue` 经
+  `@elegant-router/vue` 自动生成，无需后端提供菜单接口。
+- 认证：单 Token。登录页只接收 `CONTENT_ADMIN_TOKEN`，通过 `GET /api/admin/projects` 校验；
+  之后所有请求由请求层附加 `X-ADMIN-TOKEN`。没有账号、角色或 refresh token。
+- 请求层：`src/service/request/index.ts` 直接消费后端原生 JSON（没有 `{code,data,msg}` 包络），
+  401 时清除登录态；FormData 上传不设置 `Content-Type`，交由浏览器生成 boundary。
+- 业务接口封装在 `src/service/api/portfolio.ts`；页面位于
+  `src/views/{dashboard,projects,posts,works,profile}/`。
+- 开发环境经 Vite 代理 `/proxy-default` 访问后端（`admin/.env.test`）；
+  生产环境由 `admin/.env.prod` 的 `VITE_SERVICE_BASE_URL` 指向后端地址，
+  需要后端 CORS 允许管理端来源（`PUBLIC_ADMIN_ORIGIN`）。
 
 ## 存储策略
 
@@ -61,8 +74,12 @@
 
 1. 后端：`mvn -f backend/pom.xml package` 后运行 Jar，监听 8081；
    通过环境变量提供 `CONTENT_ADMIN_TOKEN`，以及需要时的 `CONTENT_DATA_PATH` /
-   `CONTENT_STORAGE_ROOT` / `CONTENT_MEDIA_BASE_URL` / `PUBLIC_APP_ORIGIN`。
-2. 前端：`pnpm build`，用 `node dist/server/entry.mjs` 运行（`@astrojs/node` standalone），
-   并配置 `PUBLIC_SITE_URL` 与 `PUBLIC_API_BASE_URL`。
-3. 生产环境建议用 Nginx 反向代理：`/` 转发至 Astro，`/api` 与 `/api/files` 转发至 Spring Boot。
-4. 迁移服务器时只需同步 `storage/` 与两端的环境变量。
+   `CONTENT_STORAGE_ROOT` / `CONTENT_MEDIA_BASE_URL` / `PUBLIC_APP_ORIGIN` / `PUBLIC_ADMIN_ORIGIN`。
+2. 公开站点：`pnpm build`，用 `node dist/server/entry.mjs` 运行（`@astrojs/node` standalone），
+   并配置 `PUBLIC_SITE_URL`、`PUBLIC_API_BASE_URL` 与 `PUBLIC_ADMIN_URL`。
+3. 管理端：`cd admin && pnpm build`，将 `admin/dist` 作为静态站点部署；
+   history 模式需要 Web 服务器回退到 `index.html`；构建前设置 `admin/.env.prod`
+   的 `VITE_SERVICE_BASE_URL` 指向生产后端。
+4. 生产环境 Nginx 建议：`/` 转发至 Astro，`/api` 与 `/api/files` 转发至 Spring Boot；
+   管理端可部署在独立域名或子路径，并确保后端 CORS 允许该来源。
+5. 迁移服务器时只需同步 `storage/` 与三端的环境变量。

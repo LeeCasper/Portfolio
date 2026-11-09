@@ -15,7 +15,7 @@
 		"dark-mode",
 		"responsive"
 	],
-	"author": "",
+	"author": "李聪",
 	"license": "MIT",
 	"scripts": {
 		"dev": "astro dev",

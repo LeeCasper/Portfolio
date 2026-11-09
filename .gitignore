@@ -17,6 +17,8 @@ pnpm-debug.log*
 .env.local
 .env.production
 .env.production.local
+# admin 管理端的构建期配置（只含 VITE_ 前缀的公开配置，不含密钥）
+!admin/.env
 
 # macOS-specific files
 .DS_Store
