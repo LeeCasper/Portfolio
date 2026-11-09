@@ -49,16 +49,33 @@ import Matter from "matter-js";
     }
 
     // Config (enlarge element size & reduce edge gaps)
-    const pad = 2;      // Inner padding; smaller value sticks closer to edges
     const margin = 1;   // Distance between static boundaries and container edges; smaller value sticks closer
     const count = 15;   // Number of elements
     const noRotate = false; // Set to true to disable rotation
     const scaleFactor = 0.75; // Global scaling factor: >1 enlarge, <1 shrink
 
+    // 贴纸允许 ±14° 倾斜，横向留白要能容纳旋转后的溢出，避免被圆角容器裁切
+    function edgePad(width: number) {
+      return Math.max(14, Math.min(28, width * 0.055));
+    }
+
+    // 固定随机种子：每次加载的堆叠效果一致，避免某次随机构图挤成一团
+    function mulberry32(seed: number) {
+      return function () {
+        seed |= 0;
+        seed = (seed + 0x6d2b79f5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    const rand = mulberry32(77);
+    const randSeeded = (min: number, max: number) => min + rand() * (max - min);
+
     // Dimensions
     let { width: cw, height: ch } = container.getBoundingClientRect();
-    let W = Math.max(cw - pad, 100);
-    let H = Math.max(ch - pad, 100);
+    let W = Math.max(cw - edgePad(cw) * 2, 100);
+    let H = Math.max(ch - 20, 100);
 
     // Physics engine
     const engine = Matter.Engine.create();
@@ -72,12 +89,14 @@ import Matter from "matter-js";
     Matter.World.add(world, mouseConstraint);
 
     // Boundaries (ground and side walls)
-    let ground = Matter.Bodies.rectangle(W / 2, H - margin, W, 14, { isStatic: true });
-    let wallL = Matter.Bodies.rectangle(margin, H / 2, 14, H, { isStatic: true });
-    let wallR = Matter.Bodies.rectangle(W - margin, H / 2, 14, H, { isStatic: true });
+    // 墙体做厚一些：贴纸堆到一定程度会互相挤压，薄墙容易被拱穿导致元素跑出容器
+    const WALL = 40;
+    let ground = Matter.Bodies.rectangle(W / 2, H - margin + WALL / 2, W + WALL * 2, WALL, { isStatic: true });
+    let wallL = Matter.Bodies.rectangle(margin - WALL / 2, H / 2, WALL, H, { isStatic: true });
+    let wallR = Matter.Bodies.rectangle(W - margin + WALL / 2, H / 2, WALL, H, { isStatic: true });
     Matter.World.add(world, [ground, wallL, wallR]);
 
-    // Icon paths (adjust as needed)
+    // Icon paths
     const iconUrls = [
       "/assets/stack/java.png",
       "/assets/stack/spring.png",
@@ -114,17 +133,6 @@ import Matter from "matter-js";
       console.error("[Tricks] image load failed:", e);
     }
 
-    // Sizing strategy: significantly increase target area range (adapted for 720x480)
-    function computeAreaRange() {
-      // Use container area as the base; increase icon area proportion
-      // 720*480 ≈ 345600; here a single icon area is roughly between 1/20 ~ 1/10 of the container area
-      const baseArea = W * H;
-      const areaMin = clamp(baseArea / 20, 12000, 30000);
-      const areaMax = clamp(baseArea / 10, 20000, 50000);
-      return { areaMin, areaMax };
-    }
-    let { areaMin, areaMax } = computeAreaRange();
-
     // Icon rigid body class (rectangle, size based on naturalWidth/Height)
     class IconBody {
       w: number;
@@ -132,32 +140,37 @@ import Matter from "matter-js";
       body: Matter.Body;
       el: HTMLDivElement;
 
-      constructor(img: HTMLImageElement) {
-        const x = Math.random() * W;
-        const y = Math.random() * -H;
+      constructor(img: HTMLImageElement, index: number, total: number) {
+        // 按网格错位投放，避免全部挤在同一片区域互相弹飞
+        const cols = Math.max(2, Math.ceil(Math.sqrt(total)));
+        const col = index % cols;
+        const row = Math.floor(index / cols);
+        const x = ((col + 0.5) / cols) * W + randSeeded(-W * 0.05, W * 0.05);
+        const y = -60 - row * (H * 0.2);
 
         const r =
           img.naturalWidth > 0 && img.naturalHeight > 0
             ? img.naturalWidth / img.naturalHeight
             : 1;
 
-        // Target area (random within range)
-        const A = randRange(areaMin, areaMax);
-        // Derive width/height: w = sqrt(A*r), h = w/r
-        let w = Math.sqrt(A * r);
-        let h = w / r;
+        // 以容器高度为基准取高度，保证每张贴纸的字号接近，堆叠后更整齐
+        let h = randSeeded(H * 0.118, H * 0.155) * scaleFactor;
+        let w = h * r;
 
-        // Global scale up or down
-        w *= scaleFactor;
-        h *= scaleFactor;
+        // 长条贴纸限制最大宽度，避免横跨整个盒子
+        const maxW = W * 0.66;
+        if (w > maxW) {
+          w = maxW;
+          h = w / r;
+        }
 
         this.w = w;
         this.h = h;
 
         // Physics rectangle body
         this.body = Matter.Bodies.rectangle(x, y, this.w, this.h, {
-          restitution: 0.35,
-          friction: 0.1,
+          restitution: 0.5,
+          friction: 0.02,
           frictionAir: 0.02,
           density: clamp((this.w * this.h) / 40000, 0.001, 0.02),
           inertia: noRotate ? Infinity : undefined, // No rotation: set infinite inertia
@@ -181,12 +194,11 @@ import Matter from "matter-js";
 
       update() {
         const { x, y } = this.body.position;
-        const angle = this.body.angle;
-        if (noRotate) {
-          this.el.style.transform = `translate(${x - this.w / 2}px, ${y - this.h / 2}px)`;
-        } else {
-          this.el.style.transform = `translate(${x - this.w / 2}px, ${y - this.h / 2}px) rotate(${angle}rad)`;
-        }
+        // 物理上仍会翻滚，但渲染角度限制在 ±14°，保证文字始终可读
+        const angle = noRotate ? 0 : clamp(this.body.angle, -0.244, 0.244);
+        // 渲染时把水平位置夹在容器内，避免挤压变形时贴纸被圆角边框裁掉
+        const cx = clamp(x, this.w / 2, Math.max(this.w / 2, W - this.w / 2));
+        this.el.style.transform = `translate(${cx - this.w / 2}px, ${y - this.h / 2}px) rotate(${angle}rad)`;
       }
     }
 
@@ -194,7 +206,7 @@ import Matter from "matter-js";
     const total = Math.min(iconsImgs.length, count);
     const iconsBodies: IconBody[] = [];
     for (let i = 0; i < total; i++) {
-      iconsBodies.push(new IconBody(iconsImgs[i]));
+      iconsBodies.push(new IconBody(iconsImgs[i], i, total));
     }
     Matter.World.add(world, iconsBodies.map((it) => it.body));
 
@@ -204,31 +216,32 @@ import Matter from "matter-js";
 
     // After each physics step, sync DOM
     Matter.Events.on(engine, "afterUpdate", () => {
-      iconsBodies.forEach((it) => it.update());
+      iconsBodies.forEach((it) => {
+        // 兜底：极端情况下被挤穿边界，放回顶部重新落下
+        if (it.body.position.y > H + 200) {
+          Matter.Body.setPosition(it.body, Matter.Vector.create(randSeeded(W * 0.1, W * 0.9), -H * 0.5));
+          Matter.Body.setVelocity(it.body, Matter.Vector.create(0, 0));
+          Matter.Body.setAngularVelocity(it.body, 0);
+        }
+        it.update();
+      });
     });
 
     // Responsive sizing: update boundary positions and recompute area range
     window.addEventListener("resize", () => {
       const rect = container.getBoundingClientRect();
-      W = Math.max(rect.width - pad, 100);
-      H = Math.max(rect.height - pad, 100);
+      W = Math.max(rect.width - edgePad(rect.width) * 2, 100);
+      H = Math.max(rect.height - 20, 100);
 
-      Matter.Body.setPosition(ground, Matter.Vector.create(W / 2, H - margin));
-      Matter.Body.setPosition(wallL, Matter.Vector.create(margin, H / 2));
-      Matter.Body.setPosition(wallR, Matter.Vector.create(W - margin, H / 2));
-
-      const range = computeAreaRange();
-      areaMin = range.areaMin;
-      areaMax = range.areaMax;
+      Matter.Body.setPosition(ground, Matter.Vector.create(W / 2, H - margin + WALL / 2));
+      Matter.Body.setPosition(wallL, Matter.Vector.create(margin - WALL / 2, H / 2));
+      Matter.Body.setPosition(wallR, Matter.Vector.create(W - margin + WALL / 2, H / 2));
     });
   }
 
   // Utility functions (also usable outside the IIFE)
   function clamp(v: number, min: number, max: number) {
     return Math.max(min, Math.min(max, v));
-  }
-  function randRange(min: number, max: number) {
-    return Math.random() * (max - min) + min;
   }
 })();
 </script>
