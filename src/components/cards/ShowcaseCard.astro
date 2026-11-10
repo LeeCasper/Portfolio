@@ -77,9 +77,9 @@ const StatIcon = featureCount > 0 ? Sparkles : Tag;
 
   <!-- 信息区：左侧统计与日期块，右侧标题与简介 -->
   <div class="flex flex-1 gap-4 px-1 pt-5 pb-4">
-    <div class="w-[88px] shrink-0 self-start overflow-hidden rounded-xl border border-neutral-200/90 bg-white dark:border-neutral-700 dark:bg-neutral-900">
+    <div class="flex w-[88px] shrink-0 flex-col justify-end overflow-hidden rounded-xl border border-neutral-200/90 bg-white dark:border-neutral-700 dark:bg-neutral-900">
       {statCount > 0 && (
-        <div class="flex items-center justify-center gap-1 border-b border-neutral-200/80 py-2 dark:border-neutral-700/80">
+        <div class="flex flex-1 items-center justify-center gap-1 border-b border-neutral-200/80 py-2 dark:border-neutral-700/80">
           <StatIcon size={13} class="text-primary dark:text-primary-light" />
           <span class="text-sm font-semibold tabular-nums text-neutral-800 dark:text-neutral-100">{statCount}</span>
           <span class="text-[10px] text-neutral-400">项</span>
