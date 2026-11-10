@@ -1,6 +1,7 @@
 package com.artaides.portfolio.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ public class BlogPostRequest {
     private String title;
 
     @NotBlank
+    @Pattern(regexp = "^[A-Za-z0-9_-]{1,120}$", message = "Slug 只能包含字母、数字、- 和 _，不能包含空格或网址")
     private String slug;
 
     private String summary;

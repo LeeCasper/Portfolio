@@ -116,6 +116,11 @@ async function handleSave() {
     return;
   }
 
+  if (!/^[A-Za-z0-9_-]{1,120}$/.test(model.slug.trim())) {
+    window.$message?.warning('Slug 只能包含字母、数字、- 和 _，例如 talk-about-testing');
+    return;
+  }
+
   saving.value = true;
 
   const payload: BlogPostPayload = {
@@ -220,6 +225,7 @@ const columns: DataTableColumns<BlogPostItem> = [
         </NFormItem>
         <NFormItem label="Slug（URL）" required class="flex-1">
           <NInput v-model:value="model.slug" placeholder="my-first-post" />
+          <p class="mt-4px text-12px text-gray-400">文章链接地址，只能包含字母、数字、- 和 _，不要填网址</p>
         </NFormItem>
       </NSpace>
       <NFormItem label="摘要">
