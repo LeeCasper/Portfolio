@@ -35,6 +35,7 @@ export interface WorkItem {
   url: string;
   imageUrl?: string | null;
   videoUrl?: string | null;
+  qrCodeUrl?: string | null;
   tags?: string[] | null;
   features?: string[] | null;
   isShow: boolean;
@@ -49,6 +50,7 @@ export interface WorkPayload {
   description?: string | null;
   imagePath?: string | null;
   videoPath?: string | null;
+  qrCodePath?: string | null;
   tags: string[];
   features: string[];
   isShow: boolean;

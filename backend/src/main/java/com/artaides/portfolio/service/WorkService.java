@@ -69,6 +69,7 @@ public class WorkService {
         work.setUrl(request.getUrl());
         work.setImagePath(MediaPathUtils.normalize(request.getImagePath(), baseUrl));
         work.setVideoPath(MediaPathUtils.normalize(request.getVideoPath(), baseUrl));
+        work.setQrCodePath(MediaPathUtils.normalize(request.getQrCodePath(), baseUrl));
         work.setTags(request.getTags());
         work.setFeatures(request.getFeatures());
         work.setShow(request.isShow());
@@ -84,6 +85,7 @@ public class WorkService {
                 work.getUrl(),
                 MediaPathUtils.buildPublicUrl(work.getImagePath(), baseUrl),
                 MediaPathUtils.buildPublicUrl(work.getVideoPath(), baseUrl),
+                MediaPathUtils.buildPublicUrl(work.getQrCodePath(), baseUrl),
                 work.getTags(),
                 work.getFeatures(),
                 work.isShow(),

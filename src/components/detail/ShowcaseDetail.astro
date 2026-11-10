@@ -1,5 +1,5 @@
 ---
-import { ArrowLeft, Boxes, Code, Database, ExternalLink, Gauge, Layers, Rocket, ShieldCheck, Sparkles, Zap } from "@lucide/astro";
+import { ArrowLeft, Boxes, Code, Database, ExternalLink, Gauge, Layers, QrCode, Rocket, ShieldCheck, Sparkles, Zap } from "@lucide/astro";
 import type { ShowcaseItem } from "@/types/showcase";
 import { renderInlineMarkdown } from "@/lib/inline-markdown";
 import { getTechIcon } from "@/config/tech-stack";
@@ -50,6 +50,8 @@ function parseFeature(raw: string) {
 
   return { title: "", desc: text };
 }
+
+const qrCodeUrl = item.qrCodeUrl?.trim() || "";
 
 const paragraphs = (item.description ?? "")
   .split(/\r?\n+/)
@@ -111,15 +113,24 @@ const paragraphs = (item.description ?? "")
           </div>
 
           <!-- 操作按钮 -->
-          <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a
               href={normalizedUrl}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-strong dark:bg-primary-dark dark:hover:bg-primary"
+              class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-strong dark:bg-primary-dark dark:hover:bg-primary"
             >
               预览站点 <ExternalLink size={16} />
             </a>
+            {qrCodeUrl && (
+              <button
+                type="button"
+                data-qr-open
+                class="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 py-3 text-sm font-medium text-neutral-700 transition-colors duration-200 hover:border-primary/40 hover:text-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-primary/50 dark:hover:text-primary-light"
+              >
+                扫码预览 <QrCode size={16} />
+              </button>
+            )}
             <a
               href={backHref}
               class="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 py-3 text-sm font-medium text-neutral-700 transition-colors duration-200 hover:border-primary/40 hover:text-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-primary/50 dark:hover:text-primary-light"
@@ -224,4 +235,66 @@ const paragraphs = (item.description ?? "")
       </div>
     </section>
   )}
+
+  {qrCodeUrl && (
+    <dialog
+      id="work-qr-dialog"
+      class="qr-dialog m-auto w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-neutral-200 bg-white p-0 text-neutral-900 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+      aria-labelledby="work-qr-title"
+    >
+      <div class="p-6 text-center">
+        <div class="flex items-start justify-between gap-4">
+          <h3 id="work-qr-title" class="text-lg font-semibold">扫码预览</h3>
+          <button
+            type="button"
+            data-qr-close
+            aria-label="关闭"
+            class="-mr-1 -mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M6 18 18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">用微信扫一扫，打开小程序</p>
+
+        <img src={qrCodeUrl} alt="小程序码" class="mx-auto mt-4 h-56 w-56 rounded-lg object-contain" />
+
+        <button
+          type="button"
+          data-qr-close
+          class="mt-5 w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-strong dark:bg-primary-dark dark:hover:bg-primary"
+        >
+          关闭
+        </button>
+      </div>
+    </dialog>
+  )}
 </article>
+
+{qrCodeUrl && (
+  <script>
+    const qrDialog = document.getElementById('work-qr-dialog');
+    const qrOpenButton = document.querySelector('[data-qr-open]');
+
+    if (qrDialog instanceof HTMLDialogElement && qrOpenButton) {
+      qrOpenButton.addEventListener('click', () => qrDialog.showModal());
+
+      qrDialog.addEventListener('click', (event) => {
+        if (event.target === qrDialog) qrDialog.close();
+      });
+
+      qrDialog.querySelectorAll('[data-qr-close]').forEach((button) => {
+        button.addEventListener('click', () => qrDialog.close());
+      });
+    }
+  </script>
+)}
+
+<style>
+  .qr-dialog::backdrop {
+    background-color: rgba(9, 15, 28, 0.55);
+    backdrop-filter: blur(4px);
+  }
+</style>

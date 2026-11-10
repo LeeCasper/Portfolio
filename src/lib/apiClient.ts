@@ -58,6 +58,7 @@ export type Work = {
 	url: string;
 	imageUrl?: string;
 	videoUrl?: string;
+	qrCodeUrl?: string;
 	tags?: string[];
 	features?: string[];
 	isShow?: boolean;

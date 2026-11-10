@@ -6,6 +6,8 @@ export interface ShowcaseItem {
 	url: string;
 	imageUrl?: string | null;
 	videoUrl?: string | null;
+	/** 小程序码图片，存在时详情页显示「扫码预览」 */
+	qrCodeUrl?: string | null;
 	tags?: string[] | null;
 	/** 详情页逐条展示的亮点 */
 	features?: string[] | null;

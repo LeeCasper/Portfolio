@@ -27,6 +27,9 @@ public class Work extends AuditableEntity {
 
     private String videoPath;
 
+    /** 小程序码图片路径，填写后前台显示「扫码预览」 */
+    private String qrCodePath;
+
     @Convert(converter = JsonStringListConverter.class)
     private List<String> tags = new ArrayList<>();
 
@@ -84,6 +87,14 @@ public class Work extends AuditableEntity {
 
     public void setVideoPath(String videoPath) {
         this.videoPath = videoPath;
+    }
+
+    public String getQrCodePath() {
+        return qrCodePath;
+    }
+
+    public void setQrCodePath(String qrCodePath) {
+        this.qrCodePath = qrCodePath;
     }
 
     public List<String> getTags() {

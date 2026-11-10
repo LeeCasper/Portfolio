@@ -17,6 +17,7 @@ public class WorkRequest {
 
     private String imagePath;
     private String videoPath;
+    private String qrCodePath;
     private List<String> tags;
     private List<String> features;
     private boolean isShow = true;
@@ -60,6 +61,14 @@ public class WorkRequest {
 
     public void setVideoPath(String videoPath) {
         this.videoPath = videoPath;
+    }
+
+    public String getQrCodePath() {
+        return qrCodePath;
+    }
+
+    public void setQrCodePath(String qrCodePath) {
+        this.qrCodePath = qrCodePath;
     }
 
     public List<String> getTags() {

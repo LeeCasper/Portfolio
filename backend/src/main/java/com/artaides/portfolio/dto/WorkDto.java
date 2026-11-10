@@ -10,6 +10,7 @@ public record WorkDto(
         String url,
         String imageUrl,
         String videoUrl,
+        String qrCodeUrl,
         List<String> tags,
         List<String> features,
         boolean isShow,

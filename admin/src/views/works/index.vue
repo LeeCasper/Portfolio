@@ -34,6 +34,7 @@ interface FormModel {
   description: string;
   imagePath: string;
   videoPath: string;
+  qrCodePath: string;
   tags: string[];
   features: string;
   sortOrder: number;
@@ -47,6 +48,7 @@ function createEmptyModel(): FormModel {
     description: '',
     imagePath: '',
     videoPath: '',
+    qrCodePath: '',
     tags: [],
     features: '',
     sortOrder: 0,
@@ -63,9 +65,14 @@ const model = reactive<FormModel>(createEmptyModel());
 
 const imageInput = ref<HTMLInputElement | null>(null);
 const videoInput = ref<HTMLInputElement | null>(null);
+const qrInput = ref<HTMLInputElement | null>(null);
 // 图片与视频各自独立 loading，避免同时转圈
 const { uploading: uploadingImage, upload: uploadImage } = useMediaUpload('works-image');
 const { uploading: uploadingVideo, upload: uploadVideo } = useMediaUpload('works-video');
+const { uploading: uploadingQr, upload: uploadQr } = useMediaUpload('works-qrcode');
+
+// 小程序码预览地址（上传后直接用 publicUrl）
+const qrPreview = ref('');
 
 const rowKey = (row: WorkItem) => row.id;
 
@@ -81,6 +88,7 @@ onMounted(load);
 function openCreate() {
   editingId.value = null;
   Object.assign(model, createEmptyModel());
+  qrPreview.value = '';
   modalVisible.value = true;
 }
 
@@ -92,26 +100,33 @@ function openEdit(row: WorkItem) {
     description: row.description ?? '',
     imagePath: row.imageUrl ?? '',
     videoPath: row.videoUrl ?? '',
+    qrCodePath: row.qrCodeUrl ?? '',
     tags: row.tags ?? [],
     features: joinLines(row.features),
     sortOrder: row.sortOrder ?? 0,
     isShow: row.isShow !== false
   });
+  qrPreview.value = row.qrCodeUrl ?? '';
   modalVisible.value = true;
 }
 
-async function handleUpload(event: Event, target: 'imagePath' | 'videoPath') {
+async function handleUpload(event: Event, target: 'imagePath' | 'videoPath' | 'qrCodePath') {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
   input.value = '';
 
   if (!file) return;
 
-  const uploader = target === 'imagePath' ? uploadImage : uploadVideo;
+  const uploader = target === 'imagePath' ? uploadImage : target === 'videoPath' ? uploadVideo : uploadQr;
   const asset = await uploader(file);
 
   if (asset) {
     model[target] = asset.relativePath;
+
+    if (target === 'qrCodePath') {
+      qrPreview.value = asset.publicUrl;
+    }
+
     window.$message?.success('上传成功');
   }
 }
@@ -122,6 +137,10 @@ async function handleImageUpload(event: Event) {
 
 async function handleVideoUpload(event: Event) {
   await handleUpload(event, 'videoPath');
+}
+
+async function handleQrUpload(event: Event) {
+  await handleUpload(event, 'qrCodePath');
 }
 
 async function handleSave() {
@@ -138,6 +157,7 @@ async function handleSave() {
     description: model.description.trim() || null,
     imagePath: model.imagePath.trim() || null,
     videoPath: model.videoPath.trim() || null,
+    qrCodePath: model.qrCodePath.trim() || null,
     tags: model.tags,
     features: splitLines(model.features),
     isShow: model.isShow,
@@ -251,6 +271,18 @@ const columns: DataTableColumns<WorkItem> = [
           </NSpace>
         </NSpace>
       </NFormItem>
+      <NFormItem label="小程序码">
+        <NSpace vertical class="w-full">
+          <NInput v-model:value="model.qrCodePath" placeholder="上传小程序码后，详情页会显示「扫码预览」" />
+          <NSpace align="center">
+            <div class="flex h-64px w-64px shrink-0 items-center justify-center overflow-hidden rounded-6px border border-gray-200 bg-gray-50">
+              <img v-if="qrPreview" :src="qrPreview" alt="小程序码预览" class="h-full w-full object-contain" />
+            </div>
+            <NButton :loading="uploadingQr" @click="qrInput?.click()">上传小程序码</NButton>
+            <span class="text-12px text-gray-400">可选，仅小程序类作品需要</span>
+          </NSpace>
+        </NSpace>
+      </NFormItem>
       <NFormItem label="技术栈">
         <NSelect
           v-model:value="model.tags"
@@ -287,6 +319,7 @@ const columns: DataTableColumns<WorkItem> = [
 
   <input ref="imageInput" type="file" accept="image/*" style="display: none" @change="handleImageUpload" />
   <input ref="videoInput" type="file" accept="video/*" style="display: none" @change="handleVideoUpload" />
+  <input ref="qrInput" type="file" accept="image/*" style="display: none" @change="handleQrUpload" />
   </div>
 </template>
 
