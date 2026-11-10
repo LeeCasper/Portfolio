@@ -55,7 +55,7 @@ const paragraphs = (item.description ?? "")
       <ArrowLeft size={15} /> 返回{backLabel}列表
     </a>
 
-    <div class="mt-6 grid items-start gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-14">
+    <div class="mt-6 grid items-start gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-14">
       <div class="flex flex-col">
         <h1 class="text-4xl font-bold leading-tight tracking-tight text-neutral-900! sm:text-5xl dark:text-white!">
           {item.title}
@@ -126,7 +126,7 @@ const paragraphs = (item.description ?? "")
       </div>
 
       <!-- 右侧浏览器窗口预览 -->
-      <div class="lg:sticky lg:top-24">
+      <div class="preview-bleed lg:sticky lg:top-24">
         <div
           class="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-3 shadow-[0_30px_60px_-32px_rgba(16,24,40,0.4)] dark:border-neutral-800 dark:bg-neutral-900"
         >
@@ -182,3 +182,12 @@ const paragraphs = (item.description ?? "")
     </section>
   )}
 </article>
+
+<style>
+  /* 宽屏时让预览图向右侧“出血”，贴近浏览器边缘，视觉上更像参考稿的大图 */
+  @media (min-width: 1280px) {
+    .preview-bleed {
+      margin-right: calc((1200px - 100vw) / 2 + 32px);
+    }
+  }
+</style>
