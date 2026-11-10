@@ -9,6 +9,7 @@ import {
   NInput,
   NInputNumber,
   NModal,
+  NSelect,
   NSpace,
   NSwitch,
   NTag,
@@ -22,7 +23,8 @@ import {
   type WorkItem,
   type WorkPayload
 } from '@/service/api/portfolio';
-import { joinLines, joinTags, splitLines, splitTags, useMediaUpload } from '@/hooks/common/media-upload';
+import { joinLines, splitLines, useMediaUpload } from '@/hooks/common/media-upload';
+import { TECH_STACK_OPTIONS } from '@/constants/tech-stack';
 
 defineOptions({ name: 'Works' });
 
@@ -32,7 +34,7 @@ interface FormModel {
   description: string;
   imagePath: string;
   videoPath: string;
-  tags: string;
+  tags: string[];
   features: string;
   sortOrder: number;
   isShow: boolean;
@@ -45,7 +47,7 @@ function createEmptyModel(): FormModel {
     description: '',
     imagePath: '',
     videoPath: '',
-    tags: '',
+    tags: [],
     features: '',
     sortOrder: 0,
     isShow: true
@@ -90,7 +92,7 @@ function openEdit(row: WorkItem) {
     description: row.description ?? '',
     imagePath: row.imageUrl ?? '',
     videoPath: row.videoUrl ?? '',
-    tags: joinTags(row.tags),
+    tags: row.tags ?? [],
     features: joinLines(row.features),
     sortOrder: row.sortOrder ?? 0,
     isShow: row.isShow !== false
@@ -136,7 +138,7 @@ async function handleSave() {
     description: model.description.trim() || null,
     imagePath: model.imagePath.trim() || null,
     videoPath: model.videoPath.trim() || null,
-    tags: splitTags(model.tags),
+    tags: model.tags,
     features: splitLines(model.features),
     isShow: model.isShow,
     sortOrder: model.sortOrder
@@ -249,8 +251,14 @@ const columns: DataTableColumns<WorkItem> = [
           </NSpace>
         </NSpace>
       </NFormItem>
-      <NFormItem label="标签（逗号分隔）">
-        <NInput v-model:value="model.tags" placeholder="设计, 开发" />
+      <NFormItem label="技术栈">
+        <NSelect
+          v-model:value="model.tags"
+          multiple
+          filterable
+          :options="TECH_STACK_OPTIONS"
+          placeholder="选择作品用到的技术，详情页会显示对应图标"
+        />
       </NFormItem>
       <NFormItem label="项目亮点（每行一条）" :show-feedback="false">
         <NInput

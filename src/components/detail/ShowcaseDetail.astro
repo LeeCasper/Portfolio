@@ -2,6 +2,7 @@
 import { ArrowLeft, Boxes, Code, Database, ExternalLink, Gauge, Layers, Rocket, ShieldCheck, Sparkles, Zap } from "@lucide/astro";
 import type { ShowcaseItem } from "@/types/showcase";
 import { renderInlineMarkdown } from "@/lib/inline-markdown";
+import { getTechIcon } from "@/config/tech-stack";
 
 interface Props {
   item: ShowcaseItem;
@@ -209,8 +210,12 @@ const paragraphs = (item.description ?? "")
         <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {tags.map((tag) => (
             <div class="group flex items-center gap-4 rounded-2xl border border-neutral-200/80 bg-white px-5 py-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_18px_38px_-26px_rgba(16,24,40,0.4)] dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-primary/40">
-              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/8 text-primary transition-transform duration-300 group-hover:scale-110 dark:bg-primary/15 dark:text-primary-light">
-                <Code size={22} stroke-width={1.8} />
+              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-neutral-100/80 ring-1 ring-neutral-200/60 transition-transform duration-300 group-hover:scale-110 dark:bg-neutral-800 dark:ring-neutral-700/60">
+                {getTechIcon(tag) ? (
+                  <img src={getTechIcon(tag)!} alt="" class="h-7 w-7 object-contain" loading="lazy" />
+                ) : (
+                  <Code size={22} stroke-width={1.8} class="text-primary dark:text-primary-light" />
+                )}
               </span>
               <span class="truncate text-base font-semibold text-neutral-800 dark:text-neutral-100">{tag}</span>
             </div>
