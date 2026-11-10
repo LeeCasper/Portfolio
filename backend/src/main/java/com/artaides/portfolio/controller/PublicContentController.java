@@ -2,11 +2,9 @@ package com.artaides.portfolio.controller;
 
 import com.artaides.portfolio.dto.BlogPostDto;
 import com.artaides.portfolio.dto.ProfileDto;
-import com.artaides.portfolio.dto.ProjectDto;
 import com.artaides.portfolio.dto.WorkDto;
 import com.artaides.portfolio.service.BlogPostService;
 import com.artaides.portfolio.service.ProfileService;
-import com.artaides.portfolio.service.ProjectService;
 import com.artaides.portfolio.service.WorkService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -21,21 +19,14 @@ import java.util.List;
 @RequestMapping("/api/public")
 public class PublicContentController {
 
-    private final ProjectService projectService;
     private final BlogPostService blogPostService;
     private final ProfileService profileService;
     private final WorkService workService;
 
-    public PublicContentController(ProjectService projectService, BlogPostService blogPostService, ProfileService profileService, WorkService workService) {
-        this.projectService = projectService;
+    public PublicContentController(BlogPostService blogPostService, ProfileService profileService, WorkService workService) {
         this.blogPostService = blogPostService;
         this.profileService = profileService;
         this.workService = workService;
-    }
-
-    @GetMapping("/projects")
-    public ResponseEntity<List<ProjectDto>> getProjects() {
-        return ResponseEntity.ok(projectService.getPublishedProjects());
     }
 
     @GetMapping("/blog-posts")

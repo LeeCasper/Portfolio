@@ -1,35 +1,6 @@
 import { request } from '../request';
 
 /** 后端 DTO：响应字段使用 *Url，请求字段使用 *Path */
-export interface ProjectItem {
-  id: number;
-  title: string;
-  description?: string | null;
-  link: string;
-  coverImageUrl?: string | null;
-  videoUrl?: string | null;
-  tags?: string[] | null;
-  features?: string[] | null;
-  featured: boolean;
-  published: boolean;
-  sortOrder: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface ProjectPayload {
-  title: string;
-  link: string;
-  description?: string | null;
-  coverImagePath?: string | null;
-  videoPath?: string | null;
-  tags: string[];
-  features: string[];
-  featured: boolean;
-  published: boolean;
-  sortOrder: number;
-}
-
 export interface BlogPostItem {
   id: number;
   title: string;
@@ -146,24 +117,6 @@ export interface MediaAsset {
   sizeInBytes?: number;
   category?: string;
   createdAt?: string;
-}
-
-/* ---------------- Projects ---------------- */
-
-export function fetchProjects() {
-  return request<ProjectItem[]>({ url: '/api/admin/projects' });
-}
-
-export function createProject(data: ProjectPayload) {
-  return request<ProjectItem>({ url: '/api/admin/projects', method: 'post', data });
-}
-
-export function updateProject(id: number, data: ProjectPayload) {
-  return request<ProjectItem>({ url: `/api/admin/projects/${id}`, method: 'put', data });
-}
-
-export function deleteProject(id: number) {
-  return request<void>({ url: `/api/admin/projects/${id}`, method: 'delete' });
 }
 
 /* ---------------- Blog posts ---------------- */

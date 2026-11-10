@@ -2,16 +2,13 @@ package com.artaides.portfolio.controller;
 
 import com.artaides.portfolio.dto.BlogPostDto;
 import com.artaides.portfolio.dto.ProfileDto;
-import com.artaides.portfolio.dto.ProjectDto;
 import com.artaides.portfolio.dto.WorkDto;
 import com.artaides.portfolio.request.BlogPostRequest;
 import com.artaides.portfolio.request.ProfileRequest;
-import com.artaides.portfolio.request.ProjectRequest;
 import com.artaides.portfolio.request.WorkRequest;
 import com.artaides.portfolio.security.AdminTokenVerifier;
 import com.artaides.portfolio.service.BlogPostService;
 import com.artaides.portfolio.service.ProfileService;
-import com.artaides.portfolio.service.ProjectService;
 import com.artaides.portfolio.service.WorkService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,51 +31,19 @@ public class AdminContentController {
 
     private static final String HEADER_NAME = "X-ADMIN-TOKEN";
 
-    private final ProjectService projectService;
     private final BlogPostService blogPostService;
     private final ProfileService profileService;
     private final WorkService workService;
     private final AdminTokenVerifier adminTokenVerifier;
 
-    public AdminContentController(ProjectService projectService,
-                                  BlogPostService blogPostService,
+    public AdminContentController(BlogPostService blogPostService,
                                   ProfileService profileService,
                                   WorkService workService,
                                   AdminTokenVerifier adminTokenVerifier) {
-        this.projectService = projectService;
         this.blogPostService = blogPostService;
         this.profileService = profileService;
         this.workService = workService;
         this.adminTokenVerifier = adminTokenVerifier;
-    }
-
-    @GetMapping("/projects")
-    public ResponseEntity<List<ProjectDto>> listProjects(@RequestHeader(HEADER_NAME) String token) {
-        adminTokenVerifier.verify(token);
-        return ResponseEntity.ok(projectService.getAll());
-    }
-
-    @PostMapping("/projects")
-    public ResponseEntity<ProjectDto> createProject(@RequestHeader(HEADER_NAME) String token,
-                                                    @Valid @RequestBody ProjectRequest request) {
-        adminTokenVerifier.verify(token);
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.create(request));
-    }
-
-    @PutMapping("/projects/{id}")
-    public ResponseEntity<ProjectDto> updateProject(@RequestHeader(HEADER_NAME) String token,
-                                                    @PathVariable Long id,
-                                                    @Valid @RequestBody ProjectRequest request) {
-        adminTokenVerifier.verify(token);
-        return ResponseEntity.ok(projectService.update(id, request));
-    }
-
-    @DeleteMapping("/projects/{id}")
-    public ResponseEntity<Void> deleteProject(@RequestHeader(HEADER_NAME) String token,
-                                              @PathVariable Long id) {
-        adminTokenVerifier.verify(token);
-        projectService.delete(id);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/blog-posts")
