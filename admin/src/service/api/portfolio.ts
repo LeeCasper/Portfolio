@@ -98,6 +98,12 @@ export interface ProfileItem {
   avatarUrl?: string | null;
   logoUrl?: string | null;
   resumeUrl?: string | null;
+  icpNumber?: string | null;
+  icpUrl?: string | null;
+  icpIconUrl?: string | null;
+  policeNumber?: string | null;
+  policeUrl?: string | null;
+  policeIconUrl?: string | null;
   primaryCtaLabel?: string | null;
   primaryCtaLink?: string | null;
   secondaryCtaLabel?: string | null;
@@ -119,6 +125,12 @@ export interface ProfilePayload {
   avatarPath?: string | null;
   logoPath?: string | null;
   resumePath?: string | null;
+  icpNumber?: string | null;
+  icpUrl?: string | null;
+  icpIconPath?: string | null;
+  policeNumber?: string | null;
+  policeUrl?: string | null;
+  policeIconPath?: string | null;
   primaryCtaLabel?: string | null;
   primaryCtaLink?: string | null;
   secondaryCtaLabel?: string | null;

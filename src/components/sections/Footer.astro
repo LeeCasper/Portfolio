@@ -7,6 +7,7 @@ import type { SocialItem } from "@/types/collections";
 
 const socialItems = socialJson as SocialItem[];
 import {
+  BadgeCheck,
   BookOpen,
   Figma,
   Github,
@@ -16,7 +17,8 @@ import {
   Palette,
   PenTool,
   Phone,
-  Rss
+  Rss,
+  ShieldCheck
 } from "@lucide/astro";
 
 // 个人社交入口统一来自 collections/social.json；这里只做 name → 图标 的展示映射。
@@ -37,6 +39,15 @@ interface Props {
 }
 
 const { profile = null } = Astro.props;
+
+// 备案信息由后台「个人信息 → 备案信息」维护；未填写时不展示这一行
+const icpNumber = profile?.icpNumber?.trim() || "";
+const icpUrl = profile?.icpUrl?.trim() || "https://beian.miit.gov.cn/";
+const icpIconUrl = profile?.icpIconUrl?.trim() || "";
+const policeNumber = profile?.policeNumber?.trim() || "";
+const policeUrl = profile?.policeUrl?.trim() || "https://beian.mps.gov.cn/";
+const policeIconUrl = profile?.policeIconUrl?.trim() || "";
+const hasFiling = Boolean(icpNumber || policeNumber);
 
 const footerSocials = socialItems
   .filter((item) => item.isShow !== false)
@@ -90,6 +101,46 @@ const footerSocials = socialItems
       </a>
     </span>
   </div>
+
+  {hasFiling && (
+    <div class="container mx-auto max-w-7xl px-7 pb-8">
+      <div
+        class="flex flex-col items-center gap-3 border-t border-dashed border-primary/15 pt-6 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400 sm:flex-row sm:justify-center sm:gap-8"
+      >
+        {icpNumber && (
+          <a
+            href={icpUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1.5 transition-colors duration-200 hover:text-primary dark:hover:text-primary-light"
+          >
+            {icpIconUrl ? (
+              <img src={icpIconUrl} alt="ICP 备案图标" class="h-4 w-4 shrink-0 object-contain" loading="lazy" />
+            ) : (
+              <BadgeCheck size={15} class="shrink-0 text-primary dark:text-primary-light" aria-hidden="true" />
+            )}
+            <span>{icpNumber}</span>
+          </a>
+        )}
+
+        {policeNumber && (
+          <a
+            href={policeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1.5 transition-colors duration-200 hover:text-primary dark:hover:text-primary-light"
+          >
+            {policeIconUrl ? (
+              <img src={policeIconUrl} alt="公安备案图标" class="h-4 w-4 shrink-0 object-contain" loading="lazy" />
+            ) : (
+              <ShieldCheck size={15} class="shrink-0 text-primary dark:text-primary-light" aria-hidden="true" />
+            )}
+            <span>{policeNumber}</span>
+          </a>
+        )}
+      </div>
+    </div>
+  )}
 </section>
 
 <!-- 返回顶部按钮 -->

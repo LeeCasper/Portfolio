@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import { NButton, NCard, NForm, NFormItem, NGrid, NGridItem, NInput, NSpace } from 'naive-ui';
+import { NButton, NCard, NDivider, NForm, NFormItem, NGrid, NGridItem, NInput, NSpace } from 'naive-ui';
 import { fetchProfile, updateProfile, type ProfileItem, type ProfilePayload } from '@/service/api/portfolio';
 import { useMediaUpload } from '@/hooks/common/media-upload';
 
@@ -19,6 +19,12 @@ interface FormModel {
   avatarPath: string;
   logoPath: string;
   resumePath: string;
+  icpNumber: string;
+  icpUrl: string;
+  icpIconPath: string;
+  policeNumber: string;
+  policeUrl: string;
+  policeIconPath: string;
   primaryCtaLabel: string;
   primaryCtaLink: string;
   secondaryCtaLabel: string;
@@ -39,6 +45,12 @@ function createEmptyModel(): FormModel {
     avatarPath: '',
     logoPath: '',
     resumePath: '',
+    icpNumber: '',
+    icpUrl: '',
+    icpIconPath: '',
+    policeNumber: '',
+    policeUrl: '',
+    policeIconPath: '',
     primaryCtaLabel: '',
     primaryCtaLink: '',
     secondaryCtaLabel: '',
@@ -54,15 +66,19 @@ const heroInput = ref<HTMLInputElement | null>(null);
 const avatarInput = ref<HTMLInputElement | null>(null);
 const logoInput = ref<HTMLInputElement | null>(null);
 const resumeInput = ref<HTMLInputElement | null>(null);
+const icpIconInput = ref<HTMLInputElement | null>(null);
+const policeIconInput = ref<HTMLInputElement | null>(null);
 
 // 每个上传按钮独立 loading，避免一个文件上传时所有按钮一起转圈
 const { uploading: uploadingHero, upload: uploadHero } = useMediaUpload('profile-hero');
 const { uploading: uploadingAvatar, upload: uploadAvatar } = useMediaUpload('profile-avatar');
 const { uploading: uploadingLogo, upload: uploadLogo } = useMediaUpload('profile-logo');
 const { uploading: uploadingResume, upload: uploadResume } = useMediaUpload('profile-resume');
+const { uploading: uploadingIcpIcon, upload: uploadIcpIcon } = useMediaUpload('profile-icp-icon');
+const { uploading: uploadingPoliceIcon, upload: uploadPoliceIcon } = useMediaUpload('profile-police-icon');
 
 // 图片预览（接口返回绝对地址，上传后直接用 publicUrl）
-const previews = reactive({ heroImagePath: '', avatarPath: '', logoPath: '' });
+const previews = reactive({ heroImagePath: '', avatarPath: '', logoPath: '', icpIconPath: '', policeIconPath: '' });
 
 function applyProfile(profile: ProfileItem) {
   Object.assign(model, {
@@ -78,6 +94,12 @@ function applyProfile(profile: ProfileItem) {
     avatarPath: profile.avatarUrl ?? '',
     logoPath: profile.logoUrl ?? '',
     resumePath: profile.resumeUrl ?? '',
+    icpNumber: profile.icpNumber ?? '',
+    icpUrl: profile.icpUrl ?? '',
+    icpIconPath: profile.icpIconUrl ?? '',
+    policeNumber: profile.policeNumber ?? '',
+    policeUrl: profile.policeUrl ?? '',
+    policeIconPath: profile.policeIconUrl ?? '',
     primaryCtaLabel: profile.primaryCtaLabel ?? '',
     primaryCtaLink: profile.primaryCtaLink ?? '',
     secondaryCtaLabel: profile.secondaryCtaLabel ?? '',
@@ -87,6 +109,8 @@ function applyProfile(profile: ProfileItem) {
   previews.heroImagePath = profile.heroImageUrl ?? '';
   previews.avatarPath = profile.avatarUrl ?? '';
   previews.logoPath = profile.logoUrl ?? '';
+  previews.icpIconPath = profile.icpIconUrl ?? '';
+  previews.policeIconPath = profile.policeIconUrl ?? '';
 }
 
 async function load() {
@@ -103,13 +127,21 @@ async function load() {
 
 onMounted(load);
 
-type UploadTarget = 'heroImagePath' | 'avatarPath' | 'logoPath' | 'resumePath';
+type UploadTarget =
+  | 'heroImagePath'
+  | 'avatarPath'
+  | 'logoPath'
+  | 'resumePath'
+  | 'icpIconPath'
+  | 'policeIconPath';
 
 const uploaders: Record<UploadTarget, (file: File) => ReturnType<typeof uploadHero>> = {
   heroImagePath: uploadHero,
   avatarPath: uploadAvatar,
   logoPath: uploadLogo,
-  resumePath: uploadResume
+  resumePath: uploadResume,
+  icpIconPath: uploadIcpIcon,
+  policeIconPath: uploadPoliceIcon
 };
 
 async function handleUpload(event: Event, target: UploadTarget) {
@@ -148,6 +180,14 @@ async function handleResumeUpload(event: Event) {
   await handleUpload(event, 'resumePath');
 }
 
+async function handleIcpIconUpload(event: Event) {
+  await handleUpload(event, 'icpIconPath');
+}
+
+async function handlePoliceIconUpload(event: Event) {
+  await handleUpload(event, 'policeIconPath');
+}
+
 async function handleSave() {
   if (!model.fullName.trim()) {
     window.$message?.warning('姓名不能为空');
@@ -169,6 +209,12 @@ async function handleSave() {
     avatarPath: model.avatarPath.trim() || null,
     logoPath: model.logoPath.trim() || null,
     resumePath: model.resumePath.trim() || null,
+    icpNumber: model.icpNumber.trim() || null,
+    icpUrl: model.icpUrl.trim() || null,
+    icpIconPath: model.icpIconPath.trim() || null,
+    policeNumber: model.policeNumber.trim() || null,
+    policeUrl: model.policeUrl.trim() || null,
+    policeIconPath: model.policeIconPath.trim() || null,
     primaryCtaLabel: model.primaryCtaLabel.trim() || null,
     primaryCtaLink: model.primaryCtaLink.trim() || null,
     secondaryCtaLabel: model.secondaryCtaLabel.trim() || null,
@@ -307,6 +353,39 @@ async function handleSave() {
             </NSpace>
           </NFormItem>
         </NGridItem>
+        <NGridItem :span="2">
+          <NDivider title-placement="left">备案信息</NDivider>
+        </NGridItem>
+        <NGridItem :span="2">
+          <NFormItem label="ICP 备案号">
+            <NSpace vertical class="w-full">
+              <NInput v-model:value="model.icpNumber" placeholder="例如：豫ICP备2024012345号" />
+              <NInput v-model:value="model.icpUrl" placeholder="备案查询链接，留空默认 https://beian.miit.gov.cn/" />
+              <NSpace align="center">
+                <div class="flex h-40px w-40px shrink-0 items-center justify-center overflow-hidden rounded-4px border border-gray-200 bg-gray-50">
+                  <img v-if="previews.icpIconPath" :src="previews.icpIconPath" alt="ICP 图标" class="h-full w-full object-contain" />
+                </div>
+                <NButton :loading="uploadingIcpIcon" @click="icpIconInput?.click()">上传 ICP 图标</NButton>
+                <span class="text-12px text-gray-400">可选，不传则使用默认图标</span>
+              </NSpace>
+            </NSpace>
+          </NFormItem>
+        </NGridItem>
+        <NGridItem :span="2">
+          <NFormItem label="公安备案号">
+            <NSpace vertical class="w-full">
+              <NInput v-model:value="model.policeNumber" placeholder="例如：豫公网安备41150002001234号" />
+              <NInput v-model:value="model.policeUrl" placeholder="公安备案查询链接，例如 https://beian.mps.gov.cn/..." />
+              <NSpace align="center">
+                <div class="flex h-40px w-40px shrink-0 items-center justify-center overflow-hidden rounded-4px border border-gray-200 bg-gray-50">
+                  <img v-if="previews.policeIconPath" :src="previews.policeIconPath" alt="公安备案图标" class="h-full w-full object-contain" />
+                </div>
+                <NButton :loading="uploadingPoliceIcon" @click="policeIconInput?.click()">上传公安备案图标</NButton>
+                <span class="text-12px text-gray-400">可选，不传则使用默认图标</span>
+              </NSpace>
+            </NSpace>
+          </NFormItem>
+        </NGridItem>
         <NGridItem>
           <NFormItem label="主按钮文案">
             <NInput v-model:value="model.primaryCtaLabel" placeholder="查看简历" />
@@ -340,6 +419,8 @@ async function handleSave() {
   <input ref="avatarInput" type="file" accept="image/*" style="display: none" @change="handleAvatarUpload" />
   <input ref="logoInput" type="file" accept="image/*" style="display: none" @change="handleLogoUpload" />
   <input ref="resumeInput" type="file" accept=".pdf,.md,.txt" style="display: none" @change="handleResumeUpload" />
+  <input ref="icpIconInput" type="file" accept="image/*" style="display: none" @change="handleIcpIconUpload" />
+  <input ref="policeIconInput" type="file" accept="image/*" style="display: none" @change="handlePoliceIconUpload" />
   </div>
 </template>
 

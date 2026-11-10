@@ -49,6 +49,12 @@ public class ProfileService {
         profile.setAvatarPath(MediaPathUtils.normalize(request.getAvatarPath(), baseUrl));
         profile.setLogoPath(MediaPathUtils.normalize(request.getLogoPath(), baseUrl));
         profile.setResumePath(MediaPathUtils.normalize(request.getResumePath(), baseUrl));
+        profile.setIcpNumber(request.getIcpNumber());
+        profile.setIcpUrl(request.getIcpUrl());
+        profile.setIcpIconPath(MediaPathUtils.normalize(request.getIcpIconPath(), baseUrl));
+        profile.setPoliceNumber(request.getPoliceNumber());
+        profile.setPoliceUrl(request.getPoliceUrl());
+        profile.setPoliceIconPath(MediaPathUtils.normalize(request.getPoliceIconPath(), baseUrl));
         profile.setPrimaryCtaLabel(request.getPrimaryCtaLabel());
         profile.setPrimaryCtaLink(request.getPrimaryCtaLink());
         profile.setSecondaryCtaLabel(request.getSecondaryCtaLabel());
@@ -71,6 +77,12 @@ public class ProfileService {
                 MediaPathUtils.buildPublicUrl(profile.getAvatarPath(), baseUrl),
                 MediaPathUtils.buildPublicUrl(profile.getLogoPath(), baseUrl),
                 MediaPathUtils.buildPublicUrl(profile.getResumePath(), baseUrl),
+                profile.getIcpNumber(),
+                profile.getIcpUrl(),
+                MediaPathUtils.buildPublicUrl(profile.getIcpIconPath(), baseUrl),
+                profile.getPoliceNumber(),
+                profile.getPoliceUrl(),
+                MediaPathUtils.buildPublicUrl(profile.getPoliceIconPath(), baseUrl),
                 profile.getPrimaryCtaLabel(),
                 profile.getPrimaryCtaLink(),
                 profile.getSecondaryCtaLabel(),

@@ -41,6 +41,20 @@ public class Profile extends AuditableEntity {
 
     private String resumePath;
 
+    /** ICP 备案号与链接（链接为空时前端用工信部查询页） */
+    private String icpNumber;
+
+    private String icpUrl;
+
+    private String icpIconPath;
+
+    /** 公安备案号与链接 */
+    private String policeNumber;
+
+    private String policeUrl;
+
+    private String policeIconPath;
+
     private String primaryCtaLabel;
 
     private String primaryCtaLink;
@@ -151,6 +165,54 @@ public class Profile extends AuditableEntity {
 
     public void setResumePath(String resumePath) {
         this.resumePath = resumePath;
+    }
+
+    public String getIcpNumber() {
+        return icpNumber;
+    }
+
+    public void setIcpNumber(String icpNumber) {
+        this.icpNumber = icpNumber;
+    }
+
+    public String getIcpUrl() {
+        return icpUrl;
+    }
+
+    public void setIcpUrl(String icpUrl) {
+        this.icpUrl = icpUrl;
+    }
+
+    public String getIcpIconPath() {
+        return icpIconPath;
+    }
+
+    public void setIcpIconPath(String icpIconPath) {
+        this.icpIconPath = icpIconPath;
+    }
+
+    public String getPoliceNumber() {
+        return policeNumber;
+    }
+
+    public void setPoliceNumber(String policeNumber) {
+        this.policeNumber = policeNumber;
+    }
+
+    public String getPoliceUrl() {
+        return policeUrl;
+    }
+
+    public void setPoliceUrl(String policeUrl) {
+        this.policeUrl = policeUrl;
+    }
+
+    public String getPoliceIconPath() {
+        return policeIconPath;
+    }
+
+    public void setPoliceIconPath(String policeIconPath) {
+        this.policeIconPath = policeIconPath;
     }
 
     public String getPrimaryCtaLabel() {

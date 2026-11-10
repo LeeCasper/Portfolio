@@ -55,6 +55,12 @@ export type Profile = {
 	avatarUrl?: string;
 	logoUrl?: string;
 	resumeUrl?: string;
+	icpNumber?: string;
+	icpUrl?: string;
+	icpIconUrl?: string;
+	policeNumber?: string;
+	policeUrl?: string;
+	policeIconUrl?: string;
 	primaryCtaLabel?: string;
 	primaryCtaLink?: string;
 	secondaryCtaLabel?: string;
