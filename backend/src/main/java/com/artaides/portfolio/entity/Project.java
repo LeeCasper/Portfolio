@@ -30,6 +30,10 @@ public class Project extends AuditableEntity {
     @Convert(converter = JsonStringListConverter.class)
     private List<String> tags = new ArrayList<>();
 
+    /** 项目亮点 / 功能特性，详情页会逐条展示 */
+    @Convert(converter = JsonStringListConverter.class)
+    private List<String> features = new ArrayList<>();
+
     private boolean featured = false;
 
     private boolean published = true;
@@ -90,6 +94,14 @@ public class Project extends AuditableEntity {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public List<String> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<String> features) {
+        this.features = features;
     }
 
     public boolean isFeatured() {

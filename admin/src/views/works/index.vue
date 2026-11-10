@@ -22,7 +22,7 @@ import {
   type WorkItem,
   type WorkPayload
 } from '@/service/api/portfolio';
-import { joinTags, splitTags, useMediaUpload } from '@/hooks/common/media-upload';
+import { joinLines, joinTags, splitLines, splitTags, useMediaUpload } from '@/hooks/common/media-upload';
 
 defineOptions({ name: 'Works' });
 
@@ -33,6 +33,7 @@ interface FormModel {
   imagePath: string;
   videoPath: string;
   tags: string;
+  features: string;
   sortOrder: number;
   isShow: boolean;
 }
@@ -45,6 +46,7 @@ function createEmptyModel(): FormModel {
     imagePath: '',
     videoPath: '',
     tags: '',
+    features: '',
     sortOrder: 0,
     isShow: true
   };
@@ -89,6 +91,7 @@ function openEdit(row: WorkItem) {
     imagePath: row.imageUrl ?? '',
     videoPath: row.videoUrl ?? '',
     tags: joinTags(row.tags),
+    features: joinLines(row.features),
     sortOrder: row.sortOrder ?? 0,
     isShow: row.isShow !== false
   });
@@ -134,6 +137,7 @@ async function handleSave() {
     imagePath: model.imagePath.trim() || null,
     videoPath: model.videoPath.trim() || null,
     tags: splitTags(model.tags),
+    features: splitLines(model.features),
     isShow: model.isShow,
     sortOrder: model.sortOrder
   };
@@ -247,6 +251,14 @@ const columns: DataTableColumns<WorkItem> = [
       </NFormItem>
       <NFormItem label="标签（逗号分隔）">
         <NInput v-model:value="model.tags" placeholder="设计, 开发" />
+      </NFormItem>
+      <NFormItem label="项目亮点（每行一条）" :show-feedback="false">
+        <NInput
+          v-model:value="model.features"
+          type="textarea"
+          :rows="4"
+          placeholder="详情页会逐条展示，例如：&#10;毫秒级响应&#10;支持多端协同"
+        />
       </NFormItem>
       <NFormItem label="排序">
         <NInputNumber v-model:value="model.sortOrder" :min="0" />

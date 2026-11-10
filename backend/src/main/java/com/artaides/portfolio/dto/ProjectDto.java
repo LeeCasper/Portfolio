@@ -11,6 +11,7 @@ public record ProjectDto(
         String coverImageUrl,
         String videoUrl,
         List<String> tags,
+        List<String> features,
         boolean featured,
         boolean published,
         Integer sortOrder,

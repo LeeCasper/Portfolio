@@ -70,6 +70,7 @@ public class ProjectService {
         project.setCoverImagePath(MediaPathUtils.normalize(request.getCoverImagePath(), baseUrl));
         project.setVideoPath(MediaPathUtils.normalize(request.getVideoPath(), baseUrl));
         project.setTags(request.getTags());
+        project.setFeatures(request.getFeatures());
         project.setFeatured(request.isFeatured());
         project.setPublished(request.isPublished());
         project.setSortOrder(request.getSortOrder());
@@ -85,6 +86,7 @@ public class ProjectService {
                 MediaPathUtils.buildPublicUrl(project.getCoverImagePath(), baseUrl),
                 MediaPathUtils.buildPublicUrl(project.getVideoPath(), baseUrl),
                 project.getTags(),
+                project.getFeatures(),
                 project.isFeatured(),
                 project.isPublished(),
                 project.getSortOrder(),

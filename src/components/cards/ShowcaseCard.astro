@@ -7,9 +7,11 @@ interface Props {
   index?: number;
   /** 没有标签时显示的默认分类名 */
   defaultCategory?: string;
+  /** 「查看详情」跳转的详情页地址 */
+  detailHref: string;
 }
 
-const { item, index = 0, defaultCategory = "作品" } = Astro.props;
+const { item, index = 0, defaultCategory = "作品", detailHref } = Astro.props;
 
 const fallbackImage = "/assets/home/gradientshub.jpg";
 const image = item.imageUrl?.trim() || fallbackImage;
@@ -21,7 +23,6 @@ const created = item.createdAt ? new Date(item.createdAt) : null;
 const dateLabel =
   created && !Number.isNaN(created.getTime()) ? created.toISOString().slice(0, 10) : "";
 
-const dialogId = `showcase-detail-${item.id}`;
 const description = item.description?.trim() || "";
 ---
 
@@ -41,9 +42,7 @@ const description = item.description?.trim() || "";
 
   <!-- 封面 -->
   <a
-    href={normalizedUrl}
-    target="_blank"
-    rel="noopener noreferrer"
+    href={detailHref}
     class="relative block aspect-[16/9] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5 dark:bg-neutral-800 dark:ring-white/10"
   >
     {item.videoUrl ? (
@@ -94,7 +93,7 @@ const description = item.description?.trim() || "";
       <h3
         class="truncate text-lg font-semibold text-neutral-900 transition-colors duration-300 group-hover:text-primary sm:text-[22px] dark:text-white dark:group-hover:text-primary-light"
       >
-        {item.title}
+        <a href={detailHref}>{item.title}</a>
       </h3>
       <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
         {description || "暂无描述，点击查看详情。"}
@@ -112,132 +111,11 @@ const description = item.description?.trim() || "";
     >
       预览站点 <ExternalLink size={14} />
     </a>
-    <button
-      type="button"
-      data-work-open={dialogId}
+    <a
+      href={detailHref}
       class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-strong dark:bg-primary-dark dark:hover:bg-primary"
     >
       查看详情 <Eye size={14} />
-    </button>
+    </a>
   </div>
 </article>
-
-<!-- 详情弹窗：原生 dialog，不会被网格容器裁剪 -->
-<dialog
-  id={dialogId}
-  class="work-dialog m-auto w-[min(680px,calc(100vw-2rem))] max-h-[calc(100vh-4rem)] overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-0 text-neutral-900 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
-  aria-labelledby={`${dialogId}-title`}
->
-  <div class="p-4 sm:p-6">
-    <div class="flex items-start justify-between gap-4">
-      <div class="min-w-0">
-        <h3 id={`${dialogId}-title`} class="text-xl font-semibold sm:text-2xl">{item.title}</h3>
-        {dateLabel && (
-          <p class="mt-1 text-xs text-neutral-400 tabular-nums">发布于 {dateLabel}</p>
-        )}
-      </div>
-      <button
-        type="button"
-        data-work-close
-        aria-label="关闭"
-        class="-mr-1 -mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
-      >
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-          <path d="M6 18 18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
-
-    <div class="mt-4 overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5 dark:bg-neutral-800 dark:ring-white/10">
-      {item.videoUrl ? (
-        <video src={item.videoUrl} poster={image} controls playsinline class="aspect-video w-full object-cover"></video>
-      ) : (
-        <img src={image} alt={item.title} class="aspect-video w-full object-cover" />
-      )}
-    </div>
-
-    {description && (
-      <p class="mt-4 whitespace-pre-line text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-        {description}
-      </p>
-    )}
-
-    {item.tags && item.tags.length > 0 && (
-      <div class="mt-4 flex flex-wrap gap-1.5">
-        {item.tags.map((tag) => (
-          <span class="rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-medium text-primary dark:bg-primary/15 dark:text-primary-light">
-            {tag}
-          </span>
-        ))}
-      </div>
-    )}
-
-    <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
-      <button
-        type="button"
-        data-work-close
-        class="rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
-      >
-        关闭
-      </button>
-      <a
-        href={normalizedUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-strong dark:bg-primary-dark dark:hover:bg-primary"
-      >
-        访问站点 <ExternalLink size={14} />
-      </a>
-    </div>
-  </div>
-</dialog>
-
-<style>
-  .work-dialog::backdrop {
-    background-color: rgba(9, 15, 28, 0.55);
-    backdrop-filter: blur(4px);
-  }
-
-  .work-dialog[open] {
-    animation: work-dialog-in 180ms ease-out;
-  }
-
-  @keyframes work-dialog-in {
-    from {
-      opacity: 0;
-      transform: translateY(8px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-</style>
-
-<script>
-  // 详情弹窗：按钮打开对应的原生 dialog，点遮罩 / 关闭按钮 / Esc 均可关闭
-  document.querySelectorAll<HTMLElement>("[data-work-open]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const target = button.dataset.workOpen;
-      if (!target) return;
-
-      const dialog = document.getElementById(target);
-      if (dialog instanceof HTMLDialogElement && !dialog.open) {
-        dialog.showModal();
-      }
-    });
-  });
-
-  document.querySelectorAll<HTMLDialogElement>("dialog.work-dialog").forEach((dialog) => {
-    dialog.addEventListener("click", (event) => {
-      // 点击 dialog 元素本身（即遮罩区域）时关闭
-      if (event.target === dialog) {
-        dialog.close();
-      }
-    });
-
-    dialog.querySelectorAll("[data-work-close]").forEach((closeButton) => {
-      closeButton.addEventListener("click", () => dialog.close());
-    });
-  });
-</script>

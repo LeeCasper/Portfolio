@@ -7,6 +7,9 @@ export interface ShowcaseItem {
 	imageUrl?: string | null;
 	videoUrl?: string | null;
 	tags?: string[] | null;
+	/** 详情页逐条展示的亮点 */
+	features?: string[] | null;
 	/** ISO 时间字符串，用于卡片上的日期徽标 */
 	createdAt?: string | null;
+	updatedAt?: string | null;
 }

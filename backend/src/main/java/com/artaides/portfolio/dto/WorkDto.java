@@ -11,6 +11,7 @@ public record WorkDto(
         String imageUrl,
         String videoUrl,
         List<String> tags,
+        List<String> features,
         boolean isShow,
         Integer sortOrder,
         Instant createdAt,

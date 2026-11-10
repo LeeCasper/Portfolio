@@ -8,6 +8,7 @@ export type Project = {
 	coverImageUrl?: string;
 	videoUrl?: string;
 	tags?: string[];
+	features?: string[];
 	featured?: boolean;
 	published?: boolean;
 	sortOrder?: number;
@@ -68,6 +69,7 @@ export type Work = {
 	imageUrl?: string;
 	videoUrl?: string;
 	tags?: string[];
+	features?: string[];
 	isShow?: boolean;
 	sortOrder?: number;
 	createdAt?: string;

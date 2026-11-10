@@ -1,0 +1,184 @@
+---
+import { ArrowLeft, CircleCheck, Code, ExternalLink } from "@lucide/astro";
+import type { ShowcaseItem } from "@/types/showcase";
+
+interface Props {
+  item: ShowcaseItem;
+  /** 返回列表的地址与名称（作品 / 项目） */
+  backHref: string;
+  backLabel: string;
+  /** 没有标签时的分类名 */
+  defaultCategory?: string;
+}
+
+const { item, backHref, backLabel, defaultCategory = "作品" } = Astro.props;
+
+const fallbackImage = "/assets/home/gradientshub.jpg";
+const image = item.imageUrl?.trim() || fallbackImage;
+
+const normalizedUrl = item.url.match(/^(https?:\/\/|\/|#)/i) ? item.url : `https://${item.url}`;
+const tags = (item.tags ?? []).map((tag) => tag.trim()).filter(Boolean);
+const features = (item.features ?? []).map((feature) => feature.trim()).filter(Boolean);
+const category = tags[0] || defaultCategory;
+
+function formatDate(value?: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
+}
+
+const createdAt = formatDate(item.createdAt);
+const updatedAt = formatDate(item.updatedAt);
+
+let hostname = "";
+try {
+  hostname = new URL(normalizedUrl).hostname.replace(/^www\./, "");
+} catch {
+  hostname = "";
+}
+
+const paragraphs = (item.description ?? "")
+  .split(/\r?\n+/)
+  .map((paragraph) => paragraph.trim())
+  .filter(Boolean);
+---
+
+<article class="relative">
+  <!-- 顶部淡淡的品牌色氛围 -->
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-gradient-to-b from-primary/[0.07] to-transparent dark:from-primary/[0.12]"></div>
+  <!-- 头部两栏：左侧信息，右侧浏览器预览 -->
+  <section class="site-container relative py-10 md:py-14">
+    <a
+      href={backHref}
+      class="inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-primary dark:text-neutral-400 dark:hover:text-primary-light"
+    >
+      <ArrowLeft size={15} /> 返回{backLabel}列表
+    </a>
+
+    <div class="mt-6 grid items-start gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-14">
+      <div class="flex flex-col">
+        <h1 class="text-4xl font-bold leading-tight tracking-tight text-neutral-900! sm:text-5xl dark:text-white!">
+          {item.title}
+        </h1>
+        <span class="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-primary to-primary-light"></span>
+
+        {paragraphs.length > 0 && (
+          <div class="mt-6 space-y-3 text-base leading-relaxed text-neutral-600 sm:text-lg dark:text-neutral-300">
+            {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+          </div>
+        )}
+
+        <!-- 信息卡 -->
+        <div
+          class="mt-8 rounded-2xl border border-neutral-200/80 bg-white/80 p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/60"
+        >
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-neutral-500 dark:text-neutral-400">
+            <span class="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-white">{category}</span>
+            {createdAt && <span>发布于 <span class="tabular-nums">{createdAt}</span></span>}
+            {updatedAt && (
+              <>
+                <span class="text-neutral-300 dark:text-neutral-600">·</span>
+                <span>最近更新 <span class="tabular-nums">{updatedAt}</span></span>
+              </>
+            )}
+          </div>
+
+          {tags.length > 0 && (
+            <div class="mt-4 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span class="rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-xs font-medium text-primary dark:border-primary/25 dark:bg-primary/10 dark:text-primary-light">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <a
+            href={normalizedUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-strong dark:bg-primary-dark dark:hover:bg-primary"
+          >
+            预览站点 <ExternalLink size={16} />
+          </a>
+          <a
+            href={backHref}
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 py-3 text-sm font-medium text-neutral-700 transition-colors duration-200 hover:border-primary/40 hover:text-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-primary/50 dark:hover:text-primary-light"
+          >
+            返回列表
+          </a>
+        </div>
+
+        <!-- 项目亮点 -->
+        {features.length > 0 && (
+          <ul class="mt-9 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            {features.map((feature) => (
+              <li class="flex items-start gap-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                <CircleCheck size={17} class="mt-0.5 shrink-0 text-emerald-500" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <!-- 右侧浏览器窗口预览 -->
+      <div class="lg:sticky lg:top-24">
+        <div
+          class="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white p-3 shadow-[0_30px_60px_-32px_rgba(16,24,40,0.4)] dark:border-neutral-800 dark:bg-neutral-900"
+        >
+          <div class="flex items-center gap-1.5 px-1 pb-3">
+            <span class="h-2.5 w-2.5 rounded-full bg-[#ff5f57]"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-[#febc2e]"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-[#28c840]"></span>
+            {hostname && (
+              <span class="ml-2 truncate rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500">
+                {hostname}
+              </span>
+            )}
+          </div>
+
+          <div class="aspect-[16/10] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5 dark:bg-neutral-800 dark:ring-white/10">
+            {item.videoUrl ? (
+              <video
+                src={item.videoUrl}
+                poster={image}
+                autoplay
+                loop
+                muted
+                playsinline
+                preload="metadata"
+                class="h-full w-full object-cover"
+              />
+            ) : (
+              <img src={image} alt={item.title} class="h-full w-full object-cover" />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 技术栈 -->
+  {tags.length >= 2 && (
+    <section class="mt-4 border-t border-dashed border-neutral-200 py-12 dark:border-neutral-800">
+      <div class="site-container">
+        <h2 class="text-2xl font-bold tracking-tight text-neutral-900! sm:text-3xl dark:text-white!">
+          技术栈 <span class="ml-1 text-base font-normal text-neutral-400 dark:text-neutral-500">Tech Stack</span>
+        </h2>
+
+        <div class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {tags.map((tag) => (
+            <div class="rounded-2xl border border-neutral-200/80 bg-white p-5 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
+              <Code size={26} class="mx-auto text-primary dark:text-primary-light" />
+              <p class="mt-3 text-sm font-medium text-neutral-700 dark:text-neutral-200">{tag}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</article>

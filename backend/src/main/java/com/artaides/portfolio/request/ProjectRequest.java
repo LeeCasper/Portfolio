@@ -21,6 +21,8 @@ public class ProjectRequest {
 
     private List<String> tags = new ArrayList<>();
 
+    private List<String> features = new ArrayList<>();
+
     private boolean featured;
 
     private boolean published = true;
@@ -73,6 +75,14 @@ public class ProjectRequest {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public List<String> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<String> features) {
+        this.features = features;
     }
 
     public boolean isFeatured() {

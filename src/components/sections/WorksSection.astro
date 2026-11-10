@@ -46,8 +46,11 @@ const visibleWorks = typeof limit === "number" ? works.slice(0, limit) : works;
               imageUrl: work.imageUrl,
               videoUrl: work.videoUrl,
               tags: work.tags,
-              createdAt: work.createdAt
+              features: work.features,
+              createdAt: work.createdAt,
+              updatedAt: work.updatedAt
             }}
+            detailHref={`/works/${work.id}`}
             index={index}
           />
         ))}

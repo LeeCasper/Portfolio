@@ -22,7 +22,7 @@ import {
   type ProjectItem,
   type ProjectPayload
 } from '@/service/api/portfolio';
-import { joinTags, splitTags, useMediaUpload } from '@/hooks/common/media-upload';
+import { joinLines, joinTags, splitLines, splitTags, useMediaUpload } from '@/hooks/common/media-upload';
 
 defineOptions({ name: 'Projects' });
 
@@ -33,6 +33,7 @@ interface FormModel {
   coverImagePath: string;
   videoPath: string;
   tags: string;
+  features: string;
   sortOrder: number;
   featured: boolean;
   published: boolean;
@@ -46,6 +47,7 @@ function createEmptyModel(): FormModel {
     coverImagePath: '',
     videoPath: '',
     tags: '',
+    features: '',
     sortOrder: 0,
     featured: false,
     published: true
@@ -91,6 +93,7 @@ function openEdit(row: ProjectItem) {
     coverImagePath: row.coverImageUrl ?? '',
     videoPath: row.videoUrl ?? '',
     tags: joinTags(row.tags),
+    features: joinLines(row.features),
     sortOrder: row.sortOrder ?? 0,
     featured: Boolean(row.featured),
     published: row.published !== false
@@ -137,6 +140,7 @@ async function handleSave() {
     coverImagePath: model.coverImagePath.trim() || null,
     videoPath: model.videoPath.trim() || null,
     tags: splitTags(model.tags),
+    features: splitLines(model.features),
     featured: model.featured,
     published: model.published,
     sortOrder: model.sortOrder
@@ -253,6 +257,14 @@ const columns: DataTableColumns<ProjectItem> = [
       </NFormItem>
       <NFormItem label="标签（逗号分隔）">
         <NInput v-model:value="model.tags" placeholder="Java, Spring Boot" />
+      </NFormItem>
+      <NFormItem label="项目亮点（每行一条）" :show-feedback="false">
+        <NInput
+          v-model:value="model.features"
+          type="textarea"
+          :rows="4"
+          placeholder="详情页会逐条展示，例如：&#10;毫秒级响应&#10;支持多端协同"
+        />
       </NFormItem>
       <NFormItem label="排序">
         <NInputNumber v-model:value="model.sortOrder" :min="0" />

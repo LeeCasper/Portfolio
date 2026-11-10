@@ -1,0 +1,47 @@
+---
+import PageLayout from "@/layouts/PageLayout.astro";
+import ShowcaseDetail from "@/components/detail/ShowcaseDetail.astro";
+import { apiClient, type Work } from "@/lib/apiClient";
+
+export const prerender = false;
+
+const id = Number(Astro.params.id);
+
+let works: Work[] = [];
+try {
+  works = await apiClient.fetchWorks();
+} catch {
+  works = [];
+}
+
+const work = works.find((item) => item.id === id);
+
+if (!work) {
+  return new Response(
+    "<!doctype html><html lang=\"zh-CN\"><meta charset=\"utf-8\"><title>未找到该作品</title><body style=\"font-family:system-ui;padding:48px;text-align:center\"><h1>未找到该作品</h1><p><a href=\"/works\">返回作品列表</a></p></body></html>",
+    { status: 404, headers: { "Content-Type": "text/html; charset=utf-8" } }
+  );
+}
+
+const description = work.description?.trim() || `${work.name} · 作品详情`;
+---
+
+<PageLayout title={`${work.name} · 作品`} description={description}>
+  <ShowcaseDetail
+    item={{
+      id: work.id,
+      title: work.name,
+      description: work.description,
+      url: work.url,
+      imageUrl: work.imageUrl,
+      videoUrl: work.videoUrl,
+      tags: work.tags,
+      features: work.features,
+      createdAt: work.createdAt,
+      updatedAt: work.updatedAt
+    }}
+    backHref="/works"
+    backLabel="作品"
+    defaultCategory="作品"
+  />
+</PageLayout>

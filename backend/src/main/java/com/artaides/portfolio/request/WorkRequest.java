@@ -18,6 +18,7 @@ public class WorkRequest {
     private String imagePath;
     private String videoPath;
     private List<String> tags;
+    private List<String> features;
     private boolean isShow = true;
     private Integer sortOrder = 0;
 
@@ -67,6 +68,14 @@ public class WorkRequest {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public List<String> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<String> features) {
+        this.features = features;
     }
 
     // 前端发送/读取的字段名是 isShow；不加这层映射时 Jackson 会把它当成 show，导致开关静默失效。

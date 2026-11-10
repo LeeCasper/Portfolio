@@ -38,3 +38,16 @@ export function splitTags(value: string): string[] {
 export function joinTags(tags?: string[] | null): string {
   return tags?.length ? tags.join(', ') : '';
 }
+
+/** 多行文本转数组：一行一条 */
+export function splitLines(value: string): string[] {
+  return value
+    .split(/\r?\n/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+/** 数组转多行文本 */
+export function joinLines(items?: string[] | null): string {
+  return items?.length ? items.join('\n') : '';
+}

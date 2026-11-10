@@ -9,6 +9,7 @@ export interface ProjectItem {
   coverImageUrl?: string | null;
   videoUrl?: string | null;
   tags?: string[] | null;
+  features?: string[] | null;
   featured: boolean;
   published: boolean;
   sortOrder: number;
@@ -23,6 +24,7 @@ export interface ProjectPayload {
   coverImagePath?: string | null;
   videoPath?: string | null;
   tags: string[];
+  features: string[];
   featured: boolean;
   published: boolean;
   sortOrder: number;
@@ -63,6 +65,7 @@ export interface WorkItem {
   imageUrl?: string | null;
   videoUrl?: string | null;
   tags?: string[] | null;
+  features?: string[] | null;
   isShow: boolean;
   sortOrder: number;
   createdAt?: string;
@@ -76,6 +79,7 @@ export interface WorkPayload {
   imagePath?: string | null;
   videoPath?: string | null;
   tags: string[];
+  features: string[];
   isShow: boolean;
   sortOrder: number;
 }

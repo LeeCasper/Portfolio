@@ -70,6 +70,7 @@ public class WorkService {
         work.setImagePath(MediaPathUtils.normalize(request.getImagePath(), baseUrl));
         work.setVideoPath(MediaPathUtils.normalize(request.getVideoPath(), baseUrl));
         work.setTags(request.getTags());
+        work.setFeatures(request.getFeatures());
         work.setShow(request.isShow());
         work.setSortOrder(request.getSortOrder());
     }
@@ -84,6 +85,7 @@ public class WorkService {
                 MediaPathUtils.buildPublicUrl(work.getImagePath(), baseUrl),
                 MediaPathUtils.buildPublicUrl(work.getVideoPath(), baseUrl),
                 work.getTags(),
+                work.getFeatures(),
                 work.isShow(),
                 work.getSortOrder(),
                 work.getCreatedAt(),

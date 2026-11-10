@@ -76,8 +76,11 @@ const shouldShowViewAll = typeof limit === "number"
                 imageUrl: project.coverImageUrl,
                 videoUrl: project.videoUrl,
                 tags: project.tags,
-                createdAt: project.createdAt
+                features: project.features,
+                createdAt: project.createdAt,
+                updatedAt: project.updatedAt
               }}
+              detailHref={`/projects/${project.id}`}
               index={index}
               defaultCategory="项目"
             />
