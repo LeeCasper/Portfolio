@@ -1,5 +1,5 @@
 ---
-import WorkCard from "@/components/cards/WorkCard.astro";
+import ShowcaseCard from "@/components/cards/ShowcaseCard.astro";
 import SectionHeader from "@/components/elements/SectionHeader.astro";
 import Button from "@/components/ui/Button.astro";
 import { apiClient, type Project as ProjectModel } from "@/lib/apiClient";
@@ -36,14 +36,9 @@ if (typeof limit === "number") {
   visibleProjects = projects.slice(0, 6);
 }
 
-const featuredProjects = visibleProjects.slice(0, 3);
-const gridProjects = visibleProjects.slice(3);
-
 const shouldShowViewAll = typeof limit === "number"
   ? limit < totalProjects
   : !showAll && totalProjects > 6;
-
-const fallbackImage = "/assets/home/gradientshub.jpg";
 ---
 
 <section class="py-16 md:py-16 md:pb-12">
@@ -64,51 +59,30 @@ const fallbackImage = "/assets/home/gradientshub.jpg";
 
     {!projectLoadError && totalProjects > 0 && (
       <>
-        {featuredProjects.length > 0 && (
-          <div
-            class="space-y-8 md:space-y-10"
-            data-aos-delay="750"
-            data-aos="fade-up-sm"
-            data-aos-duration="1000"
-            data-aos-once="true"
-          >
-            {featuredProjects.map((project, index) => (
-              <WorkCard
-                name={project.title}
-                description={project.description}
-                image={project.coverImageUrl || fallbackImage}
-                url={project.link}
-                tags={project.tags}
-                video={project.videoUrl}
-                layout="featured"
-                index={index}
-              />
-            ))}
-          </div>
-        )}
-
-        {gridProjects.length > 0 && (
-          <div
-            class="grid gap-6 md:gap-8 md:grid-cols-2"
-            data-aos-delay="150"
-            data-aos="fade-up-sm"
-            data-aos-duration="1000"
-            data-aos-once="true"
-          >
-            {gridProjects.map((project, index) => (
-              <WorkCard
-                name={project.title}
-                description={project.description}
-                image={project.coverImageUrl || fallbackImage}
-                url={project.link}
-                tags={project.tags}
-                video={project.videoUrl}
-                layout="grid"
-                index={index}
-              />
-            ))}
-          </div>
-        )}
+        <div
+          class="grid gap-6 md:gap-7 md:grid-cols-2"
+          data-aos-delay="150"
+          data-aos="fade-up-sm"
+          data-aos-duration="1000"
+          data-aos-once="true"
+        >
+          {visibleProjects.map((project, index) => (
+            <ShowcaseCard
+              item={{
+                id: project.id,
+                title: project.title,
+                description: project.description,
+                url: project.link,
+                imageUrl: project.coverImageUrl,
+                videoUrl: project.videoUrl,
+                tags: project.tags,
+                createdAt: project.createdAt
+              }}
+              index={index}
+              defaultCategory="项目"
+            />
+          ))}
+        </div>
 
         {shouldShowViewAll && (
           <div class="flex items-center justify-center pt-4">

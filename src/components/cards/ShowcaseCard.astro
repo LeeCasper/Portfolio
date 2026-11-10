@@ -1,24 +1,28 @@
 ---
 import { Eye, ExternalLink, Tag } from "@lucide/astro";
-import type { Work } from "@/lib/apiClient";
+import type { ShowcaseItem } from "@/types/showcase";
 
 interface Props {
-  work: Work;
-  image: string;
+  item: ShowcaseItem;
   index?: number;
+  /** 没有标签时显示的默认分类名 */
+  defaultCategory?: string;
 }
 
-const { work, image, index = 0 } = Astro.props;
+const { item, index = 0, defaultCategory = "作品" } = Astro.props;
 
-const normalizedUrl = work.url.match(/^(https?:\/\/|\/|#)/i) ? work.url : `https://${work.url}`;
-const category = work.tags?.[0]?.trim() || "作品";
+const fallbackImage = "/assets/home/gradientshub.jpg";
+const image = item.imageUrl?.trim() || fallbackImage;
 
-const created = work.createdAt ? new Date(work.createdAt) : null;
+const normalizedUrl = item.url.match(/^(https?:\/\/|\/|#)/i) ? item.url : `https://${item.url}`;
+const category = item.tags?.[0]?.trim() || defaultCategory;
+
+const created = item.createdAt ? new Date(item.createdAt) : null;
 const dateLabel =
   created && !Number.isNaN(created.getTime()) ? created.toISOString().slice(0, 10) : "";
 
-const dialogId = `work-detail-${work.id}`;
-const description = work.description?.trim() || "";
+const dialogId = `showcase-detail-${item.id}`;
+const description = item.description?.trim() || "";
 ---
 
 <article
@@ -42,9 +46,9 @@ const description = work.description?.trim() || "";
     rel="noopener noreferrer"
     class="relative block aspect-[16/9] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5 dark:bg-neutral-800 dark:ring-white/10"
   >
-    {work.videoUrl ? (
+    {item.videoUrl ? (
       <video
-        src={work.videoUrl}
+        src={item.videoUrl}
         poster={image}
         autoplay
         loop
@@ -56,7 +60,7 @@ const description = work.description?.trim() || "";
     ) : (
       <img
         src={image}
-        alt={work.name}
+        alt={item.title}
         loading="lazy"
         class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
       />
@@ -90,7 +94,7 @@ const description = work.description?.trim() || "";
       <h3
         class="truncate text-lg font-semibold text-neutral-900 transition-colors duration-300 group-hover:text-primary sm:text-[22px] dark:text-white dark:group-hover:text-primary-light"
       >
-        {work.name}
+        {item.title}
       </h3>
       <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
         {description || "暂无描述，点击查看详情。"}
@@ -127,7 +131,7 @@ const description = work.description?.trim() || "";
   <div class="p-4 sm:p-6">
     <div class="flex items-start justify-between gap-4">
       <div class="min-w-0">
-        <h3 id={`${dialogId}-title`} class="text-xl font-semibold sm:text-2xl">{work.name}</h3>
+        <h3 id={`${dialogId}-title`} class="text-xl font-semibold sm:text-2xl">{item.title}</h3>
         {dateLabel && (
           <p class="mt-1 text-xs text-neutral-400 tabular-nums">发布于 {dateLabel}</p>
         )}
@@ -145,10 +149,10 @@ const description = work.description?.trim() || "";
     </div>
 
     <div class="mt-4 overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5 dark:bg-neutral-800 dark:ring-white/10">
-      {work.videoUrl ? (
-        <video src={work.videoUrl} poster={image} controls playsinline class="aspect-video w-full object-cover"></video>
+      {item.videoUrl ? (
+        <video src={item.videoUrl} poster={image} controls playsinline class="aspect-video w-full object-cover"></video>
       ) : (
-        <img src={image} alt={work.name} class="aspect-video w-full object-cover" />
+        <img src={image} alt={item.title} class="aspect-video w-full object-cover" />
       )}
     </div>
 
@@ -158,9 +162,9 @@ const description = work.description?.trim() || "";
       </p>
     )}
 
-    {work.tags && work.tags.length > 0 && (
+    {item.tags && item.tags.length > 0 && (
       <div class="mt-4 flex flex-wrap gap-1.5">
-        {work.tags.map((tag) => (
+        {item.tags.map((tag) => (
           <span class="rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-medium text-primary dark:bg-primary/15 dark:text-primary-light">
             {tag}
           </span>
@@ -209,3 +213,31 @@ const description = work.description?.trim() || "";
     }
   }
 </style>
+
+<script>
+  // 详情弹窗：按钮打开对应的原生 dialog，点遮罩 / 关闭按钮 / Esc 均可关闭
+  document.querySelectorAll<HTMLElement>("[data-work-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.workOpen;
+      if (!target) return;
+
+      const dialog = document.getElementById(target);
+      if (dialog instanceof HTMLDialogElement && !dialog.open) {
+        dialog.showModal();
+      }
+    });
+  });
+
+  document.querySelectorAll<HTMLDialogElement>("dialog.work-dialog").forEach((dialog) => {
+    dialog.addEventListener("click", (event) => {
+      // 点击 dialog 元素本身（即遮罩区域）时关闭
+      if (event.target === dialog) {
+        dialog.close();
+      }
+    });
+
+    dialog.querySelectorAll("[data-work-close]").forEach((closeButton) => {
+      closeButton.addEventListener("click", () => dialog.close());
+    });
+  });
+</script>

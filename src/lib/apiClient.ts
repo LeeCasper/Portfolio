@@ -11,6 +11,8 @@ export type Project = {
 	featured?: boolean;
 	published?: boolean;
 	sortOrder?: number;
+	createdAt?: string;
+	updatedAt?: string;
 };
 
 export type BlogPost = {
