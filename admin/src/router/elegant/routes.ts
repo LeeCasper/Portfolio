@@ -98,17 +98,6 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
-    name: 'projects',
-    path: '/projects',
-    component: 'layout.base$view.projects',
-    meta: {
-      title: 'projects',
-      i18nKey: 'route.projects',
-      icon: 'mdi:folder-outline',
-      order: 2
-    }
-  },
-  {
     name: 'works',
     path: '/works',
     component: 'layout.base$view.works',

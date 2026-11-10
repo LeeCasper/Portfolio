@@ -1,21 +1,5 @@
 import { runtimeConfig } from "@/lib/runtime-config";
 
-export type Project = {
-	id: number;
-	title: string;
-	description?: string;
-	link: string;
-	coverImageUrl?: string;
-	videoUrl?: string;
-	tags?: string[];
-	features?: string[];
-	featured?: boolean;
-	published?: boolean;
-	sortOrder?: number;
-	createdAt?: string;
-	updatedAt?: string;
-};
-
 export type BlogPost = {
 	id: number;
 	title: string;
@@ -103,9 +87,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const apiClient = {
-	fetchProjects() {
-		return request<Project[]>("/projects");
-	},
 	fetchBlogPosts() {
 		return request<BlogPost[]>("/blog-posts");
 	},

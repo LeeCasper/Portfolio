@@ -23,6 +23,5 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   dashboard: () => import("@/views/dashboard/index.vue"),
   posts: () => import("@/views/posts/index.vue"),
   profile: () => import("@/views/profile/index.vue"),
-  projects: () => import("@/views/projects/index.vue"),
   works: () => import("@/views/works/index.vue"),
 };

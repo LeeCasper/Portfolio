@@ -25,7 +25,6 @@ declare module "@elegant-router/types" {
     "login": "/login/:module(pwd-login)?";
     "posts": "/posts";
     "profile": "/profile";
-    "projects": "/projects";
     "works": "/works";
   };
 
@@ -66,7 +65,6 @@ declare module "@elegant-router/types" {
     | "login"
     | "posts"
     | "profile"
-    | "projects"
     | "works"
   >;
 
@@ -92,7 +90,6 @@ declare module "@elegant-router/types" {
     | "dashboard"
     | "posts"
     | "profile"
-    | "projects"
     | "works"
   >;
 

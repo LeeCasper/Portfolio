@@ -29,10 +29,9 @@ export function setupElegantRouter() {
       /** 业务菜单的图标与顺序 */
       const businessRoutes: Record<string, { icon: string; order: number }> = {
         dashboard: { icon: 'mdi:view-dashboard-outline', order: 1 },
-        projects: { icon: 'mdi:folder-outline', order: 2 },
-        posts: { icon: 'mdi:post-outline', order: 3 },
-        works: { icon: 'mdi:briefcase-outline', order: 4 },
-        profile: { icon: 'mdi:account-outline', order: 5 }
+        posts: { icon: 'mdi:post-outline', order: 2 },
+        works: { icon: 'mdi:briefcase-outline', order: 3 },
+        profile: { icon: 'mdi:account-outline', order: 4 }
       };
 
       const meta: Partial<RouteMeta> = {
