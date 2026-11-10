@@ -1,6 +1,7 @@
 ---
 import { Eye, ExternalLink, Tag } from "@lucide/astro";
 import type { ShowcaseItem } from "@/types/showcase";
+import { stripInlineMarkdown } from "@/lib/inline-markdown";
 
 interface Props {
   item: ShowcaseItem;
@@ -23,7 +24,7 @@ const created = item.createdAt ? new Date(item.createdAt) : null;
 const dateLabel =
   created && !Number.isNaN(created.getTime()) ? created.toISOString().slice(0, 10) : "";
 
-const description = item.description?.trim() || "";
+const description = stripInlineMarkdown(item.description?.trim() || "");
 ---
 
 <article

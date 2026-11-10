@@ -2,7 +2,7 @@
 import ShowcaseCard from "@/components/cards/ShowcaseCard.astro";
 import SectionHeader from "@/components/elements/SectionHeader.astro";
 import Button from "@/components/ui/Button.astro";
-import { apiClient, type Project as ProjectModel } from "@/lib/apiClient";
+import { apiClient, type Work } from "@/lib/apiClient";
 
 interface Props {
   title?: string;
@@ -18,46 +18,47 @@ const {
   limit
 } = Astro.props as Props;
 
-let projects: ProjectModel[] = [];
-let projectLoadError: string | null = null;
+// 首页与「我的作品」页共用同一份数据（后台「作品管理」），编辑一次两处同步
+let works: Work[] = [];
+let worksError: string | null = null;
 
 try {
-  projects = await apiClient.fetchProjects();
+  works = await apiClient.fetchWorks();
 } catch (error) {
-  projectLoadError = error instanceof Error ? error.message : "无法加载项目数据";
+  worksError = error instanceof Error ? error.message : "无法加载作品数据";
 }
 
-const totalProjects = projects.length;
-let visibleProjects = projects;
+const totalWorks = works.length;
+let visibleWorks = works;
 
 if (typeof limit === "number") {
-  visibleProjects = projects.slice(0, limit);
+  visibleWorks = works.slice(0, limit);
 } else if (!showAll) {
-  visibleProjects = projects.slice(0, 6);
+  visibleWorks = works.slice(0, 6);
 }
 
 const shouldShowViewAll = typeof limit === "number"
-  ? limit < totalProjects
-  : !showAll && totalProjects > 6;
+  ? limit < totalWorks
+  : !showAll && totalWorks > 6;
 ---
 
 <section class="py-16 md:py-16 md:pb-12">
   <div class="site-container space-y-8 md:space-y-8">
     <SectionHeader title={title} description={description} />
 
-    {projectLoadError && (
+    {worksError && (
       <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/20">
-        {projectLoadError}
+        {worksError}
       </div>
     )}
 
-    {!projectLoadError && totalProjects === 0 && (
+    {!worksError && totalWorks === 0 && (
       <div class="rounded-xl border border-dashed border-neutral-200 px-4 py-6 text-center text-sm text-neutral-500 dark:border-neutral-700 dark:text-neutral-300">
-        暂无作品，请在后台添加首批项目。
+        暂无作品，请在后台「作品管理」添加。
       </div>
     )}
 
-    {!projectLoadError && totalProjects > 0 && (
+    {!worksError && totalWorks > 0 && (
       <>
         <div
           class="grid gap-6 md:gap-7 md:grid-cols-2"
@@ -66,23 +67,23 @@ const shouldShowViewAll = typeof limit === "number"
           data-aos-duration="1000"
           data-aos-once="true"
         >
-          {visibleProjects.map((project, index) => (
+          {visibleWorks.map((work, index) => (
             <ShowcaseCard
               item={{
-                id: project.id,
-                title: project.title,
-                description: project.description,
-                url: project.link,
-                imageUrl: project.coverImageUrl,
-                videoUrl: project.videoUrl,
-                tags: project.tags,
-                features: project.features,
-                createdAt: project.createdAt,
-                updatedAt: project.updatedAt
+                id: work.id,
+                title: work.name,
+                description: work.description,
+                url: work.url,
+                imageUrl: work.imageUrl,
+                videoUrl: work.videoUrl,
+                tags: work.tags,
+                features: work.features,
+                createdAt: work.createdAt,
+                updatedAt: work.updatedAt
               }}
-              detailHref={`/projects/${project.id}`}
+              detailHref={`/works/${work.id}`}
               index={index}
-              defaultCategory="项目"
+              defaultCategory="作品"
             />
           ))}
         </div>
