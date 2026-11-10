@@ -1,30 +1,33 @@
 ---
-import { Eye, ExternalLink, Tag } from "@lucide/astro";
+import { Eye, ExternalLink, Sparkles, Tag } from "@lucide/astro";
 import type { ShowcaseItem } from "@/types/showcase";
 import { stripInlineMarkdown } from "@/lib/inline-markdown";
 
 interface Props {
   item: ShowcaseItem;
   index?: number;
-  /** 没有标签时显示的默认分类名 */
-  defaultCategory?: string;
   /** 「查看详情」跳转的详情页地址 */
   detailHref: string;
 }
 
-const { item, index = 0, defaultCategory = "作品", detailHref } = Astro.props;
+const { item, index = 0, detailHref } = Astro.props;
 
 const fallbackImage = "/assets/home/gradientshub.jpg";
 const image = item.imageUrl?.trim() || fallbackImage;
 
 const normalizedUrl = item.url.match(/^(https?:\/\/|\/|#)/i) ? item.url : `https://${item.url}`;
-const category = item.tags?.[0]?.trim() || defaultCategory;
 
 const created = item.createdAt ? new Date(item.createdAt) : null;
 const dateLabel =
   created && !Number.isNaN(created.getTime()) ? created.toISOString().slice(0, 10) : "";
 
 const description = stripInlineMarkdown(item.description?.trim() || "");
+
+// 左侧信息块上方显示一个数量：优先项目亮点数，其次技术标签数
+const featureCount = (item.features ?? []).filter((feature) => feature?.trim()).length;
+const tagCount = (item.tags ?? []).filter((tag) => tag?.trim()).length;
+const statCount = featureCount || tagCount;
+const StatIcon = featureCount > 0 ? Sparkles : Tag;
 ---
 
 <article
@@ -72,21 +75,20 @@ const description = stripInlineMarkdown(item.description?.trim() || "");
     </span>
   </a>
 
-  <!-- 信息区：左侧徽标 + 日期，右侧标题与简介 -->
+  <!-- 信息区：左侧统计与日期块，右侧标题与简介 -->
   <div class="flex flex-1 gap-4 px-1 pt-5 pb-4">
-    <div class="flex w-[86px] shrink-0 flex-col items-start gap-2">
-      <span
-        class="inline-flex max-w-full items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2 py-1 text-[11px] font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
-      >
-        <Tag size={12} class="shrink-0 text-primary dark:text-primary-light" />
-        <span class="truncate">{category}</span>
-      </span>
+    <div class="w-[88px] shrink-0 self-start overflow-hidden rounded-xl border border-neutral-200/90 bg-white dark:border-neutral-700 dark:bg-neutral-900">
+      {statCount > 0 && (
+        <div class="flex items-center justify-center gap-1 border-b border-neutral-200/80 py-2 dark:border-neutral-700/80">
+          <StatIcon size={13} class="text-primary dark:text-primary-light" />
+          <span class="text-sm font-semibold tabular-nums text-neutral-800 dark:text-neutral-100">{statCount}</span>
+          <span class="text-[10px] text-neutral-400">项</span>
+        </div>
+      )}
       {dateLabel && (
-        <span
-          class="whitespace-nowrap rounded-md bg-primary px-2 py-0.5 text-[11px] font-medium tabular-nums text-white"
-        >
+        <div class="bg-primary py-1.5 text-center text-[11px] font-medium tabular-nums text-white">
           {dateLabel}
-        </span>
+        </div>
       )}
     </div>
 
