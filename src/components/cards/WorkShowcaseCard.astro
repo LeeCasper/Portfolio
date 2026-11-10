@@ -1,0 +1,211 @@
+---
+import { Eye, ExternalLink, Tag } from "@lucide/astro";
+import type { Work } from "@/lib/apiClient";
+
+interface Props {
+  work: Work;
+  image: string;
+  index?: number;
+}
+
+const { work, image, index = 0 } = Astro.props;
+
+const normalizedUrl = work.url.match(/^(https?:\/\/|\/|#)/i) ? work.url : `https://${work.url}`;
+const category = work.tags?.[0]?.trim() || "作品";
+
+const created = work.createdAt ? new Date(work.createdAt) : null;
+const dateLabel =
+  created && !Number.isNaN(created.getTime()) ? created.toISOString().slice(0, 10) : "";
+
+const dialogId = `work-detail-${work.id}`;
+const description = work.description?.trim() || "";
+---
+
+<article
+  class="group flex h-full flex-col rounded-2xl border border-neutral-200/80 bg-white p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-neutral-300/80 hover:shadow-[0_20px_45px_-22px_rgba(16,24,40,0.3)] sm:p-4 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
+  data-aos="fade-up"
+  data-aos-duration="500"
+  data-aos-delay={index * 80}
+  data-aos-once="true"
+>
+  <!-- 浏览器窗口的小圆点 -->
+  <div class="flex items-center gap-1.5 px-1 pb-3">
+    <span class="h-2.5 w-2.5 rounded-full bg-[#ff5f57]"></span>
+    <span class="h-2.5 w-2.5 rounded-full bg-[#febc2e]"></span>
+    <span class="h-2.5 w-2.5 rounded-full bg-[#28c840]"></span>
+  </div>
+
+  <!-- 封面 -->
+  <a
+    href={normalizedUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="relative block aspect-[16/9] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5 dark:bg-neutral-800 dark:ring-white/10"
+  >
+    {work.videoUrl ? (
+      <video
+        src={work.videoUrl}
+        poster={image}
+        autoplay
+        loop
+        muted
+        playsinline
+        preload="metadata"
+        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+      />
+    ) : (
+      <img
+        src={image}
+        alt={work.name}
+        loading="lazy"
+        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+      />
+    )}
+
+    <span
+      class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+    >
+    </span>
+  </a>
+
+  <!-- 信息区：左侧徽标 + 日期，右侧标题与简介 -->
+  <div class="flex flex-1 gap-4 px-1 pt-5 pb-4">
+    <div class="flex w-[86px] shrink-0 flex-col items-start gap-2">
+      <span
+        class="inline-flex max-w-full items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2 py-1 text-[11px] font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+      >
+        <Tag size={12} class="shrink-0 text-primary dark:text-primary-light" />
+        <span class="truncate">{category}</span>
+      </span>
+      {dateLabel && (
+        <span
+          class="whitespace-nowrap rounded-md bg-primary px-2 py-0.5 text-[11px] font-medium tabular-nums text-white"
+        >
+          {dateLabel}
+        </span>
+      )}
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <h3
+        class="truncate text-lg font-semibold text-neutral-900 transition-colors duration-300 group-hover:text-primary sm:text-[22px] dark:text-white dark:group-hover:text-primary-light"
+      >
+        {work.name}
+      </h3>
+      <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+        {description || "暂无描述，点击查看详情。"}
+      </p>
+    </div>
+  </div>
+
+  <!-- 操作按钮 -->
+  <div class="mt-auto grid grid-cols-2 gap-2">
+    <a
+      href={normalizedUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors duration-200 hover:border-primary/40 hover:text-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-primary/50 dark:hover:text-primary-light"
+    >
+      预览站点 <ExternalLink size={14} />
+    </a>
+    <button
+      type="button"
+      data-work-open={dialogId}
+      class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-strong dark:bg-primary-dark dark:hover:bg-primary"
+    >
+      查看详情 <Eye size={14} />
+    </button>
+  </div>
+</article>
+
+<!-- 详情弹窗：原生 dialog，不会被网格容器裁剪 -->
+<dialog
+  id={dialogId}
+  class="work-dialog m-auto w-[min(680px,calc(100vw-2rem))] max-h-[calc(100vh-4rem)] overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-0 text-neutral-900 shadow-2xl dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+  aria-labelledby={`${dialogId}-title`}
+>
+  <div class="p-4 sm:p-6">
+    <div class="flex items-start justify-between gap-4">
+      <div class="min-w-0">
+        <h3 id={`${dialogId}-title`} class="text-xl font-semibold sm:text-2xl">{work.name}</h3>
+        {dateLabel && (
+          <p class="mt-1 text-xs text-neutral-400 tabular-nums">发布于 {dateLabel}</p>
+        )}
+      </div>
+      <button
+        type="button"
+        data-work-close
+        aria-label="关闭"
+        class="-mr-1 -mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+      >
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 18 18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="mt-4 overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5 dark:bg-neutral-800 dark:ring-white/10">
+      {work.videoUrl ? (
+        <video src={work.videoUrl} poster={image} controls playsinline class="aspect-video w-full object-cover"></video>
+      ) : (
+        <img src={image} alt={work.name} class="aspect-video w-full object-cover" />
+      )}
+    </div>
+
+    {description && (
+      <p class="mt-4 whitespace-pre-line text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+        {description}
+      </p>
+    )}
+
+    {work.tags && work.tags.length > 0 && (
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        {work.tags.map((tag) => (
+          <span class="rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-medium text-primary dark:bg-primary/15 dark:text-primary-light">
+            {tag}
+          </span>
+        ))}
+      </div>
+    )}
+
+    <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+      <button
+        type="button"
+        data-work-close
+        class="rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+      >
+        关闭
+      </button>
+      <a
+        href={normalizedUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-strong dark:bg-primary-dark dark:hover:bg-primary"
+      >
+        访问站点 <ExternalLink size={14} />
+      </a>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .work-dialog::backdrop {
+    background-color: rgba(9, 15, 28, 0.55);
+    backdrop-filter: blur(4px);
+  }
+
+  .work-dialog[open] {
+    animation: work-dialog-in 180ms ease-out;
+  }
+
+  @keyframes work-dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+</style>

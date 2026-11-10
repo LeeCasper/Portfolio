@@ -68,6 +68,8 @@ export type Work = {
 	tags?: string[];
 	isShow?: boolean;
 	sortOrder?: number;
+	createdAt?: string;
+	updatedAt?: string;
 };
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
