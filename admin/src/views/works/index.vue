@@ -59,7 +59,9 @@ const model = reactive<FormModel>(createEmptyModel());
 
 const imageInput = ref<HTMLInputElement | null>(null);
 const videoInput = ref<HTMLInputElement | null>(null);
-const { uploading, upload } = useMediaUpload('works-image');
+// 图片与视频各自独立 loading，避免同时转圈
+const { uploading: uploadingImage, upload: uploadImage } = useMediaUpload('works-image');
+const { uploading: uploadingVideo, upload: uploadVideo } = useMediaUpload('works-video');
 
 const rowKey = (row: WorkItem) => row.id;
 
@@ -100,8 +102,8 @@ async function handleUpload(event: Event, target: 'imagePath' | 'videoPath') {
 
   if (!file) return;
 
-  const category = target === 'imagePath' ? 'works-image' : 'works-video';
-  const asset = await upload(file, category);
+  const uploader = target === 'imagePath' ? uploadImage : uploadVideo;
+  const asset = await uploader(file);
 
   if (asset) {
     model[target] = asset.relativePath;
@@ -229,7 +231,7 @@ const columns: DataTableColumns<WorkItem> = [
         <NSpace vertical class="w-full">
           <NInput v-model:value="model.imagePath" placeholder="上传后自动填入，也可手动填写相对路径" />
           <NSpace align="center">
-            <NButton :loading="uploading" @click="imageInput?.click()">上传图片</NButton>
+            <NButton :loading="uploadingImage" @click="imageInput?.click()">上传图片</NButton>
             <span class="text-12px text-gray-500">{{ model.imagePath }}</span>
           </NSpace>
         </NSpace>
@@ -238,7 +240,7 @@ const columns: DataTableColumns<WorkItem> = [
         <NSpace vertical class="w-full">
           <NInput v-model:value="model.videoPath" placeholder="上传后自动填入，也可手动填写相对路径" />
           <NSpace align="center">
-            <NButton :loading="uploading" @click="videoInput?.click()">上传视频</NButton>
+            <NButton :loading="uploadingVideo" @click="videoInput?.click()">上传视频</NButton>
             <span class="text-12px text-gray-500">{{ model.videoPath }}</span>
           </NSpace>
         </NSpace>

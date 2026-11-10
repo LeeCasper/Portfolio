@@ -4,6 +4,7 @@ import TopBg from "@/components/ui/TopBg.astro";
 import Footer from "@/components/sections/Footer.astro";
 import Header from "@/components/sections/Header.astro";
 import TrackGa from "@/components/widgets/TrackGa.astro";
+import { apiClient } from "@/lib/apiClient";
 interface Props {
 	title?: string | undefined;
 	description?: string | undefined;
@@ -22,6 +23,9 @@ import "aos/dist/aos.css";
 import "../styles/aos-custom.css";
 import '../styles/article.css';
 import '../styles/article-enhancements.css';
+
+// 页头 Logo 与简历入口都来自后台「个人信息」，这里统一取一次传给 Header / Footer。
+const profile = await apiClient.fetchProfile();
 ---
 
 <html lang="">
@@ -49,9 +53,9 @@ import '../styles/article-enhancements.css';
   </head>
   <body class="antialiased bg-bg-primary dark:bg-bg-primary-dark max-w-full overflow-x-hidden">
     <TopBg />
-    <Header />
+    <Header profile={profile} />
     <slot />
-    <Footer />
+    <Footer profile={profile} />
     <script src="../assets/js/main.js"></script>
   </body>
 </html>

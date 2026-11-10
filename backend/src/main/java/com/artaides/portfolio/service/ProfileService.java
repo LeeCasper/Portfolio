@@ -46,6 +46,8 @@ public class ProfileService {
         profile.setLocation(request.getLocation());
         profile.setJobTitle(request.getJobTitle());
         profile.setHeroImagePath(MediaPathUtils.normalize(request.getHeroImagePath(), baseUrl));
+        profile.setAvatarPath(MediaPathUtils.normalize(request.getAvatarPath(), baseUrl));
+        profile.setLogoPath(MediaPathUtils.normalize(request.getLogoPath(), baseUrl));
         profile.setResumePath(MediaPathUtils.normalize(request.getResumePath(), baseUrl));
         profile.setPrimaryCtaLabel(request.getPrimaryCtaLabel());
         profile.setPrimaryCtaLink(request.getPrimaryCtaLink());
@@ -66,6 +68,8 @@ public class ProfileService {
                 profile.getLocation(),
                 profile.getJobTitle(),
                 MediaPathUtils.buildPublicUrl(profile.getHeroImagePath(), baseUrl),
+                MediaPathUtils.buildPublicUrl(profile.getAvatarPath(), baseUrl),
+                MediaPathUtils.buildPublicUrl(profile.getLogoPath(), baseUrl),
                 MediaPathUtils.buildPublicUrl(profile.getResumePath(), baseUrl),
                 profile.getPrimaryCtaLabel(),
                 profile.getPrimaryCtaLink(),

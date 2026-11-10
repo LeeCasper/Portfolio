@@ -91,6 +91,8 @@ export interface ProfileItem {
   location?: string | null;
   jobTitle?: string | null;
   heroImageUrl?: string | null;
+  avatarUrl?: string | null;
+  logoUrl?: string | null;
   resumeUrl?: string | null;
   primaryCtaLabel?: string | null;
   primaryCtaLink?: string | null;
@@ -110,6 +112,8 @@ export interface ProfilePayload {
   location?: string | null;
   jobTitle?: string | null;
   heroImagePath?: string | null;
+  avatarPath?: string | null;
+  logoPath?: string | null;
   resumePath?: string | null;
   primaryCtaLabel?: string | null;
   primaryCtaLink?: string | null;

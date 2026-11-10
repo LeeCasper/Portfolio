@@ -49,6 +49,8 @@ export type Profile = {
 	location?: string;
 	jobTitle?: string;
 	heroImageUrl?: string;
+	avatarUrl?: string;
+	logoUrl?: string;
 	resumeUrl?: string;
 	primaryCtaLabel?: string;
 	primaryCtaLink?: string;

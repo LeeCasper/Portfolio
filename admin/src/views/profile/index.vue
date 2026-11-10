@@ -16,6 +16,8 @@ interface FormModel {
   location: string;
   jobTitle: string;
   heroImagePath: string;
+  avatarPath: string;
+  logoPath: string;
   resumePath: string;
   primaryCtaLabel: string;
   primaryCtaLink: string;
@@ -34,6 +36,8 @@ function createEmptyModel(): FormModel {
     location: '',
     jobTitle: '',
     heroImagePath: '',
+    avatarPath: '',
+    logoPath: '',
     resumePath: '',
     primaryCtaLabel: '',
     primaryCtaLink: '',
@@ -47,8 +51,18 @@ const saving = ref(false);
 const model = reactive<FormModel>(createEmptyModel());
 
 const heroInput = ref<HTMLInputElement | null>(null);
+const avatarInput = ref<HTMLInputElement | null>(null);
+const logoInput = ref<HTMLInputElement | null>(null);
 const resumeInput = ref<HTMLInputElement | null>(null);
-const { uploading, upload } = useMediaUpload('profile-hero');
+
+// 每个上传按钮独立 loading，避免一个文件上传时所有按钮一起转圈
+const { uploading: uploadingHero, upload: uploadHero } = useMediaUpload('profile-hero');
+const { uploading: uploadingAvatar, upload: uploadAvatar } = useMediaUpload('profile-avatar');
+const { uploading: uploadingLogo, upload: uploadLogo } = useMediaUpload('profile-logo');
+const { uploading: uploadingResume, upload: uploadResume } = useMediaUpload('profile-resume');
+
+// 图片预览（接口返回绝对地址，上传后直接用 publicUrl）
+const previews = reactive({ heroImagePath: '', avatarPath: '', logoPath: '' });
 
 function applyProfile(profile: ProfileItem) {
   Object.assign(model, {
@@ -61,12 +75,18 @@ function applyProfile(profile: ProfileItem) {
     location: profile.location ?? '',
     jobTitle: profile.jobTitle ?? '',
     heroImagePath: profile.heroImageUrl ?? '',
+    avatarPath: profile.avatarUrl ?? '',
+    logoPath: profile.logoUrl ?? '',
     resumePath: profile.resumeUrl ?? '',
     primaryCtaLabel: profile.primaryCtaLabel ?? '',
     primaryCtaLink: profile.primaryCtaLink ?? '',
     secondaryCtaLabel: profile.secondaryCtaLabel ?? '',
     secondaryCtaLink: profile.secondaryCtaLink ?? ''
   });
+
+  previews.heroImagePath = profile.heroImageUrl ?? '';
+  previews.avatarPath = profile.avatarUrl ?? '';
+  previews.logoPath = profile.logoUrl ?? '';
 }
 
 async function load() {
@@ -83,24 +103,45 @@ async function load() {
 
 onMounted(load);
 
-async function handleUpload(event: Event, target: 'heroImagePath' | 'resumePath') {
+type UploadTarget = 'heroImagePath' | 'avatarPath' | 'logoPath' | 'resumePath';
+
+const uploaders: Record<UploadTarget, (file: File) => ReturnType<typeof uploadHero>> = {
+  heroImagePath: uploadHero,
+  avatarPath: uploadAvatar,
+  logoPath: uploadLogo,
+  resumePath: uploadResume
+};
+
+async function handleUpload(event: Event, target: UploadTarget) {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
   input.value = '';
 
   if (!file) return;
 
-  const category = target === 'heroImagePath' ? 'profile-hero' : 'profile-resume';
-  const asset = await upload(file, category);
+  const asset = await uploaders[target](file);
 
   if (asset) {
     model[target] = asset.relativePath;
+
+    if (target !== 'resumePath') {
+      previews[target] = asset.publicUrl;
+    }
+
     window.$message?.success('上传成功');
   }
 }
 
 async function handleHeroUpload(event: Event) {
   await handleUpload(event, 'heroImagePath');
+}
+
+async function handleAvatarUpload(event: Event) {
+  await handleUpload(event, 'avatarPath');
+}
+
+async function handleLogoUpload(event: Event) {
+  await handleUpload(event, 'logoPath');
 }
 
 async function handleResumeUpload(event: Event) {
@@ -125,6 +166,8 @@ async function handleSave() {
     location: model.location.trim() || null,
     jobTitle: model.jobTitle.trim() || null,
     heroImagePath: model.heroImagePath.trim() || null,
+    avatarPath: model.avatarPath.trim() || null,
+    logoPath: model.logoPath.trim() || null,
     resumePath: model.resumePath.trim() || null,
     primaryCtaLabel: model.primaryCtaLabel.trim() || null,
     primaryCtaLink: model.primaryCtaLink.trim() || null,
@@ -190,11 +233,66 @@ async function handleSave() {
         <NGridItem :span="2">
           <NFormItem label="Hero 图">
             <NSpace vertical class="w-full">
-              <NInput v-model:value="model.heroImagePath" placeholder="上传后自动填入，也可手动填写相对路径" />
-              <NSpace align="center">
-                <NButton :loading="uploading" @click="heroInput?.click()">上传图片</NButton>
-                <span class="text-12px text-gray-500">{{ model.heroImagePath }}</span>
-              </NSpace>
+              <div class="flex items-start gap-10px w-full">
+                <div class="h-84px w-72px shrink-0 overflow-hidden rounded-6px border border-gray-200 bg-gray-50">
+                  <img
+                    v-if="previews.heroImagePath"
+                    :src="previews.heroImagePath"
+                    alt="Hero 预览"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+                <NSpace vertical class="w-full">
+                  <NInput v-model:value="model.heroImagePath" placeholder="上传后自动填入，也可手动填写相对路径" />
+                  <NSpace align="center">
+                    <NButton :loading="uploadingHero" @click="heroInput?.click()">上传图片</NButton>
+                    <span class="text-12px text-gray-500 break-all">{{ model.heroImagePath }}</span>
+                  </NSpace>
+                  <p class="text-12px text-gray-400">首页右侧的大卡片，建议竖版图片（约 6:7）</p>
+                </NSpace>
+              </div>
+            </NSpace>
+          </NFormItem>
+        </NGridItem>
+        <NGridItem>
+          <NFormItem label="头像">
+            <NSpace vertical class="w-full">
+              <div class="flex items-start gap-10px w-full">
+                <div class="h-56px w-56px shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-50">
+                  <img
+                    v-if="previews.avatarPath"
+                    :src="previews.avatarPath"
+                    alt="头像预览"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+                <NSpace vertical class="w-full">
+                  <NInput v-model:value="model.avatarPath" placeholder="上传后自动填入" />
+                  <NButton :loading="uploadingAvatar" @click="avatarInput?.click()">上传头像</NButton>
+                  <p class="text-12px text-gray-400">「关于我」页面头像，建议正方形图片</p>
+                </NSpace>
+              </div>
+            </NSpace>
+          </NFormItem>
+        </NGridItem>
+        <NGridItem>
+          <NFormItem label="站点 Logo">
+            <NSpace vertical class="w-full">
+              <div class="flex items-start gap-10px w-full">
+                <div class="h-56px w-56px shrink-0 overflow-hidden rounded-full border border-gray-200 bg-gray-50">
+                  <img
+                    v-if="previews.logoPath"
+                    :src="previews.logoPath"
+                    alt="Logo 预览"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+                <NSpace vertical class="w-full">
+                  <NInput v-model:value="model.logoPath" placeholder="上传后自动填入" />
+                  <NButton :loading="uploadingLogo" @click="logoInput?.click()">上传 Logo</NButton>
+                  <p class="text-12px text-gray-400">页面左上角与页脚，建议正方形图片</p>
+                </NSpace>
+              </div>
             </NSpace>
           </NFormItem>
         </NGridItem>
@@ -203,8 +301,8 @@ async function handleSave() {
             <NSpace vertical class="w-full">
               <NInput v-model:value="model.resumePath" placeholder="支持 PDF / Markdown / 文本" />
               <NSpace align="center">
-                <NButton :loading="uploading" @click="resumeInput?.click()">上传简历</NButton>
-                <span class="text-12px text-gray-500">{{ model.resumePath }}</span>
+                <NButton :loading="uploadingResume" @click="resumeInput?.click()">上传简历</NButton>
+                <span class="text-12px text-gray-500 break-all">{{ model.resumePath }}</span>
               </NSpace>
             </NSpace>
           </NFormItem>
@@ -239,6 +337,8 @@ async function handleSave() {
   </NCard>
 
   <input ref="heroInput" type="file" accept="image/*" style="display: none" @change="handleHeroUpload" />
+  <input ref="avatarInput" type="file" accept="image/*" style="display: none" @change="handleAvatarUpload" />
+  <input ref="logoInput" type="file" accept="image/*" style="display: none" @change="handleLogoUpload" />
   <input ref="resumeInput" type="file" accept=".pdf,.md,.txt" style="display: none" @change="handleResumeUpload" />
   </div>
 </template>

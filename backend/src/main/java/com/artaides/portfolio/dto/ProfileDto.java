@@ -13,6 +13,8 @@ public record ProfileDto(
         String location,
         String jobTitle,
         String heroImageUrl,
+        String avatarUrl,
+        String logoUrl,
         String resumeUrl,
         String primaryCtaLabel,
         String primaryCtaLink,

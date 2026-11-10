@@ -44,7 +44,8 @@ try {
 
 const displayName = profile?.fullName ?? "李聪";
 const pageTitle = `关于${displayName}`;
-const avatarImage = profile?.heroImageUrl ?? "/assets/avatar.png";
+// 头像与首页 Hero 图是两回事：这里只用后台单独设置的头像，未设置时回退到本地默认图
+const avatarImage = profile?.avatarUrl ?? "/assets/avatar.png";
 const headlineQuote = profile?.headline ?? "软件测试工程师";
 const heroSubtitle = profile?.jobTitle ?? "毕业生";
 const aboutParagraphs = profile?.bio

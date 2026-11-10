@@ -4,10 +4,16 @@ import menus from "@/collections/menu.json";
 import Button from "@/components/ui/Button.astro";
 import Logo from "@/components/ui/Logo.astro";
 import { siteConfig } from "@/config/site.js";
-import { apiClient } from "@/lib/apiClient";
+import type { Profile } from "@/lib/apiClient";
 
-// 简历入口以后台「个人信息」里上传的文件为准，未上传时才回退到静态配置。
-const profile = await apiClient.fetchProfile();
+interface Props {
+  /** 由 Layout 统一获取后传入，避免每个页面重复请求个人信息 */
+  profile?: Profile | null;
+}
+
+const { profile = null } = Astro.props;
+
+// 简历与站点 Logo 以后台「个人信息」里上传的文件为准，未上传时回退到本地默认资源。
 const resumeUrl = profile?.resumeUrl?.trim() || siteConfig.resume || "";
 const resumeLabel = resumeUrl ? "简历" : "简历（待更新）";
 ---
@@ -20,7 +26,7 @@ const resumeLabel = resumeUrl ? "简历" : "简历（待更新）";
   >
     <!-- Logo -->
     <div class="flex-shrink-0 z-50">
-      <Logo />
+      <Logo src={profile?.logoUrl} />
     </div>
 
     <!-- Mobile Menu Background Overlay -->

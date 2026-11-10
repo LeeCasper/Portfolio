@@ -23,6 +23,10 @@ public class ProfileRequest {
 
     private String heroImagePath;
 
+    private String avatarPath;
+
+    private String logoPath;
+
     private String resumePath;
 
     private String primaryCtaLabel;
@@ -103,6 +107,22 @@ public class ProfileRequest {
 
     public void setHeroImagePath(String heroImagePath) {
         this.heroImagePath = heroImagePath;
+    }
+
+    public String getAvatarPath() {
+        return avatarPath;
+    }
+
+    public void setAvatarPath(String avatarPath) {
+        this.avatarPath = avatarPath;
+    }
+
+    public String getLogoPath() {
+        return logoPath;
+    }
+
+    public void setLogoPath(String logoPath) {
+        this.logoPath = logoPath;
     }
 
     public String getResumePath() {
